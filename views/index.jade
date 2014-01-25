@@ -1,0 +1,17 @@
+extends layout
+.page
+
+block content
+	h1 #{locals.title}
+	//- if locals.message
+	//- 	div#message Welcome, #{locals.message}
+	div Welcome, #{locals.currentUser}
+	div
+		a(href='/newdocument') Create new Document
+	//- display all groups
+	if locals.d_ids
+		div#show_groups Documents:
+		- for (var i = 0; i < locals.title.length+1; i++)
+			link = "/document" + "/" + locals.d_ids[i];
+			div
+				a(href=link)= locals.d_title[i]

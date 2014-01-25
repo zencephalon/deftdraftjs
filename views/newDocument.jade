@@ -1,0 +1,20 @@
+extends layout
+.page
+
+block content
+	h1 #{locals.title}
+	div Members:
+		div	
+			span #{locals.username}	
+			span #{locals.email}
+		form.users(method='post', action='/newdocument')
+			div
+				span
+					label Title:
+					input(name='doc[title]', value='')
+			div
+				span
+					label Content:
+					input(name='doc[content]', value='')			
+			div
+				input(type='submit', value='Save')
