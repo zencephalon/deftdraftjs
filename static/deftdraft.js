@@ -25,6 +25,16 @@ DeftDraft.prototype.word = function(func) {
   this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
 }
 
+DeftDraft.prototype.sentence = function(func) {
+  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
+}
+
+DeftDraft.prototype.paragraph = function(func) {
+  this.textobject(this.paragraphBoundaryBefore, this.paragraphBoundaryAfter, func);
+}
+
+// ================== next / prev ===================
+
 DeftDraft.prototype.nextWord = function() {
   this.word(this.selectWordAfter);
 }
@@ -32,6 +42,16 @@ DeftDraft.prototype.nextWord = function() {
 DeftDraft.prototype.prevWord = function() {
   this.word(this.selectWordBefore);
 }
+
+DeftDraft.prototype.nextSentence = function() {
+  that = this; this.sentence(function(sel, content) {that.selectSentenceAfter(sel, content)});
+}
+
+DeftDraft.prototype.prevSentence = function() {
+  that = this; this.sentence(function(sel, content) {that.selectSentenceBefore(sel, content)});
+}
+
+// =================== after / before =================
 
 DeftDraft.prototype.selectWordAfter = function(sel, content) {
   content_after = content.substr(sel.end);
@@ -59,8 +79,35 @@ DeftDraft.prototype.selectWordBefore = function(sel, content) {
   }
 }
 
-DeftDraft.prototype.reverse = function(str) {
-  return str.split("").reverse().join("");
+DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
+  sel.end = sel.end + 1;
+  content_after = content.substr(sel.end);
+  res = /.*?[.!?](\W|$)/.exec(content_after);
+
+  console.log(res);
+  if (res !== null) {
+    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
+  } else {
+    sel.start = 0;
+    sel.end = 0;
+    this.selectSentenceAfter(sel, content);
+  }
+}
+
+DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
+  content_before = this.reverse(content.substr(0, sel.start));
+  res = /(^|\W)[.?!].*?(\W[.!?]|$)/.exec(content_before);
+
+  if (res !== null) {
+    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
+  } else {
+    sel.start = content.length;
+    sel.end = content.length;
+    this.selectSentenceBefore(sel, content);
+  }
+}
+
+// ==================== boundaries ===================
 }
 
 DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
@@ -83,15 +130,6 @@ DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
   } else {
     return content.length;
   }
-}
-
-DeftDraft.prototype.alreadySelected = function(start, end) {
-  return (start === 0 && end === 0);
-}
-
-
-DeftDraft.prototype.sentence = function(func) {
-  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
 }
 
 DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
@@ -117,45 +155,15 @@ DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
   }
 }
 
-DeftDraft.prototype.nextSentence = function() {
-  that = this; this.sentence(function(sel, content) {that.selectSentenceAfter(sel, content)});
+// ===================== helpers ==================
+
+DeftDraft.prototype.reverse = function(str) {
+  return str.split("").reverse().join("");
+
+DeftDraft.prototype.alreadySelected = function(start, end) {
+  return (start === 0 && end === 0);
 }
 
-DeftDraft.prototype.prevSentence = function() {
-  that = this; this.sentence(function(sel, content) {that.selectSentenceBefore(sel, content)});
-}
-
-DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
-  sel.end = sel.end + 1;
-  content_after = content.substr(sel.end);
-  res = /.*?[.!?](\W|$)/.exec(content_after);
-
-  console.log(res);
-  if (res !== null) {
-    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
-  } else {
-    sel.start = 0;
-    sel.end = 0;
-    this.selectSentenceAfter(sel, content);
-  }
-}
-
-DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
-  //sel.start = sel.start - 1;
-  content_before = this.reverse(content.substr(0, sel.start));
-  console.log(sel);
-  res = /(^|\W)[.?!].*?(\W[.!?]|$)/.exec(content_before);
-
-  console.log(res);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
-  } else {
-    sel.start = content.length;
-    sel.end = content.length;
-    this.selectSentenceBefore(sel, content);
-  }
-}
 
 DeftDraft.prototype.nextParagraph = function() {
 
