@@ -84,13 +84,14 @@ DeftDraft.prototype.alreadySelected = function(start, end) {
   return (start === 0 && end === 0);
 }
 
-DeftDraft.prototype.sentence = function() {
+DeftDraft.prototype.sentence = function(func) {
   var content = this.textarea.val();
   var sel = this.textarea.getSelection();
 
   var before = this.sentenceBoundaryBefore(sel.start, content); // -> position
   var after = this.sentenceBoundaryAfter(sel.end, content);
 
+  console.log(before + ", " + after);
   if (this.alreadySelected(before, after)) {
     func(sel, content);
   } else {
@@ -110,8 +111,9 @@ DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
 }
 
 DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
+  pos = pos - 1;
   content = content.substr(pos);
-  res = /[.!?]\W/.exec(content);
+  res = /[.!?](\W|$)/.exec(content);
 
   if (res !== null) {
     return res.index;
@@ -126,6 +128,34 @@ DeftDraft.prototype.nextSentence = function() {
 
 DeftDraft.prototype.prevSentence = function() {
   that = this; this.sentence(function(sel, content) {that.selectSentenceBefore(sel, content)});
+}
+
+DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
+  sel.end = sel.end + 1;
+  content_after = content.substr(sel.end);
+  res = /.*?[.!?](\W|$)/.exec(content_after);
+
+  console.log(res);
+  if (res !== null) {
+    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
+  } else {
+    sel.start = 0;
+    sel.end = 0;
+    this.selectSentenceAfter(sel, content);
+  }
+}
+
+DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
+  content_before = this.reverse(content.substr(0, sel.start));
+  res = /\W[.!?].*?\W/.exec(content_before);
+
+  if (res !== null) {
+    this.textarea.setSelection(sel.start - res.index - res[0].length, sel.start - res.index);
+  } else {
+    sel.start = content.length;
+    sel.end = content.length;
+    this.selectSentenceBefore(sel, content);
+  }
 }
 
 DeftDraft.prototype.nextParagraph = function() {
@@ -153,13 +183,13 @@ DeftDraft.prototype.compress = function() {
 }
 
 var dd = new DeftDraft($('#editor'));
-Mousetrap.bind('ctrl+w', function() {dd.nextWord()});
-Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord()});
-Mousetrap.bind('ctrl+s', function() {dd.nextSentence()});
-Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence()});
-Mousetrap.bind('ctrl+a', function() {dd.nextParagraph()});
-Mousetrap.bind('ctrl+shift+a', function() {dd.prevParagraph()});
-Mousetrap.bind('ctrl+d', function() {dd.nextHeading()});
-Mousetrap.bind('ctrl+shift+d', function() {dd.prevHeading()});
-Mousetrap.bind('ctrl+e', function() {dd.expand()});
-Mousetrap.bind('ctrl+shift+e', function() {dd.compress()});
+Mousetrap.bind('ctrl+w', function() {dd.nextWord(); return false});
+Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord(); return false});
+Mousetrap.bind('ctrl+s', function() {dd.nextSentence(); return false});
+Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence(); return false});
+Mousetrap.bind('ctrl+a', function() {dd.nextParagraph(); return false});
+Mousetrap.bind('ctrl+shift+a', function() {dd.prevParagraph(); return false});
+Mousetrap.bind('ctrl+d', function() {dd.nextHeading(); return false});
+Mousetrap.bind('ctrl+shift+d', function() {dd.prevHeading(); return false});
+Mousetrap.bind('ctrl+e', function() {dd.expand(); return false});
+Mousetrap.bind('ctrl+shift+e', function() {dd.compress(); return false});
