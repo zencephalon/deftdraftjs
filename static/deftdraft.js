@@ -111,9 +111,10 @@ DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
 }
 
 DeftDraft.prototype.selectParagraphAfter = function(sel, content) {
-  sel.end = sel.end + 1;
+  console.log(sel);
   content_after = content.substr(sel.end);
-  res = /.*?(\n\n|$)/.exec(content_after);
+  console.log(content_after);
+  res = /.+(\n\n|$)/.exec(content_after);
 
   console.log(res);
 
