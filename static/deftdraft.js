@@ -51,7 +51,7 @@ DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
 }
 
 DeftDraft.prototype.word = function(func) {
-  this.textobject(this.wordBoundaryBefore(), this.wordBoundaryAfter(), func);
+  this.textobject(this.boundaryFunc('b', 'w'), this.boundaryFunc('a', 'w'), func);
 }
 
 DeftDraft.prototype.sentence = function(func) {
@@ -120,20 +120,12 @@ DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
   }
 }
 
-DeftDraft.prototype.wordBoundaryAfter = function() {
-  return this.boundaryFunc('a', 'w');
-}
-
 DeftDraft.prototype.sentenceBoundaryAfter = function() {
   return this.boundaryFunc('a', 's');
 }
 
 DeftDraft.prototype.paragraphBoundaryAfter = function() {
   return this.boundaryFunc('a', 'p');
-}
-
-DeftDraft.prototype.wordBoundaryBefore = function() {
-  return this.boundaryFunc('b', 'w');
 }
 
 DeftDraft.prototype.sentenceBoundaryBefore = function() {
