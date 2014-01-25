@@ -181,13 +181,13 @@ DeftDraft.prototype.compress = function() {
 }
 
 var dd = new DeftDraft($('#editor'));
-Mousetrap.bind('ctrl+w', function() {dd.nextWord()});
-Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord()});
-Mousetrap.bind('ctrl+s', function() {dd.nextSentence()});
-Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence()});
-Mousetrap.bind('ctrl+a', function() {dd.nextParagraph()});
-Mousetrap.bind('ctrl+shift+a', function() {dd.prevParagraph()});
-Mousetrap.bind('ctrl+d', function() {dd.nextHeading()});
-Mousetrap.bind('ctrl+shift+d', function() {dd.prevHeading()});
-Mousetrap.bind('ctrl+e', function() {dd.expand()});
-Mousetrap.bind('ctrl+shift+e', function() {dd.compress()});
+Mousetrap.bind('ctrl+w', function() {dd.nextWord(); return false});
+Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord(); return false});
+Mousetrap.bind('ctrl+s', function() {dd.nextSentence(); return false});
+Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence(); return false});
+Mousetrap.bind('ctrl+a', function() {dd.nextParagraph(); return false});
+Mousetrap.bind('ctrl+shift+a', function() {dd.prevParagraph(); return false});
+Mousetrap.bind('ctrl+d', function() {dd.nextHeading(); return false});
+Mousetrap.bind('ctrl+shift+d', function() {dd.prevHeading(); return false});
+Mousetrap.bind('ctrl+e', function() {dd.expand(); return false});
+Mousetrap.bind('ctrl+shift+e', function() {dd.compress(); return false});
