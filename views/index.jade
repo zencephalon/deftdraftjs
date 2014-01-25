@@ -1,16 +1,17 @@
-extends headerlayout
+include headerlayout
 
-block content
-	h1 #{locals.title}
-	//- if locals.message
-	//- 	div#message Welcome, #{locals.message}
-	div Welcome, #{locals.currentUser}
-	div
-		a(href='/newdocument') Create new Document
-	//- display all groups
-	if locals.d_ids
-		div#show_groups Documents:
-		- for (var i = 0; i < locals.title.length+1; i++)
-			link = "/document" + "/" + locals.d_ids[i];
-			div
-				a(href=link)= locals.d_title[i]
+body.header-body
+	.container.body-container
+		.content.body-box
+			.row
+				#welcome-box.body-contents
+					h1 Welcome, #{locals.currentUser}
+					if locals.d_ids
+						div#show_groups Documents:
+						- for (var i = 0; i <= locals.title.length; i++)
+							link = "/document" + "/" + locals.d_ids[i];
+							div
+								a(href=link)= locals.d_title[i]
+					div.single-button
+						a(href='/newdocument')
+							button.btn.btn-body.primary-body(type='button', value='Create', action='/newdocument') Create new document

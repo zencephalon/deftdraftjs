@@ -38,7 +38,7 @@ h2 {
 	padding-left: 15px;
 }
 
-.btn {
+.btn-body {
 	background-color: #36AECC;
 	color: #fff;
 }
@@ -64,7 +64,7 @@ h2 {
 	padding-bottom: 10px;
 }
 
-.primary {
+.primary-body {
 	margin-left: 10px;
 	margin-right: 10px;
 }

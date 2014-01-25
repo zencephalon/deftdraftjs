@@ -1,17 +1,26 @@
-.register-container {
+.body-container {
 	background-color: #E8F2F5;
 	border-radius:10px;
 	margin-top: 20px;
 	width: 300px;
 }
 
-.register-box {
-	padding-top: 25px;
+.body-contents {
+	margin-left: 40px;
+}
+
+.body-box {
+	padding-top: 0px;
 	padding-bottom: 10px;
 }
 
-#register {
-	margin-left: 40px;
+h1 {
+	padding-top:0px;
+	padding-bottom: 10px;
+}
+
+.single-button {
+	margin-left: 35px;
 }
 
 fieldset {
@@ -29,14 +38,6 @@ h2 {
 .btn-body {
 	background-color: #36AECC;
 	color: #fff;
-}
-
-#message {
-	color:black;
-}
-
-#register-form {
-	padding: 20px;
 }
 
 .clearfix {

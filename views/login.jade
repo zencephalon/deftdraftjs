@@ -1,10 +1,8 @@
-link(rel='stylesheet', href="/stylesheets/bootstrap.css");
-script(src="http://code.jquery.com/jquery-1.10.1.min.js");
-script(src="/js/bootstrap.js");
-link(rel='stylesheet', href="/stylesheets/style.css");
-link(rel='stylesheet', href="/stylesheets/login.css");
+include loginheaderlayout.jade
 
-body
+link(rel='stylesheet', href='/stylesheets/login.css');
+
+body.login-header-body
   .container.login-container
     .content.login-box
       .row
@@ -20,8 +18,8 @@ body
                 .clearfix#remember-me
                   label(id='before-label', for='remember_me') Remember me:
                   input(id='before-checkbox', type='checkbox', name="remember_me") Remember me
-              button.btn.primary(type='submit', value='Log in') Log in
+              button.btn.btn-body.primary-body(type='submit', value='Log in') Log in
               a(href='/register')
-                button.btn.primary(type='button', value='Sign up', action='/register') Sign up
+                button.btn.btn-body.primary-body(type='button', value='Sign up', action='/register') Sign up
               if locals.message
                 div#message #{locals.message}

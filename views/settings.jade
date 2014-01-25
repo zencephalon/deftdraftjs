@@ -1,25 +1,15 @@
-//extends layout
-.page
-	h1 Settings
-//	form.users(method='post', action='/settings' )
-//
-//		div
-//			label Name:
-//			input(name='user[name]', value='')
-//		div
-	//div
-	//	h4 Update Password:
-	form.users(method='post', action='/settings' )
-		h4 Update Password:
-		div
-			label New Password:
-			input(type='password', name='newPassword', value='')
-		div
-			label Confirm Password:
-			input(type='password', name='confirmPassword', value='')
-		//include fields
-		div
-			input(type='submit', value='Update')
-	div
-		if locals.message
-			div#message #{locals.message}
+include headerlayout
+
+body.header-body
+	.container.body-container
+		.content.body-box
+			.row
+				#settings-form.body-contents
+					h2 Update Password
+					form.users(method='post', action='/settings')
+						fieldset
+							.clearfix
+								input(id='newpw1', type='password', placeholder='New Password', name='newPassword');
+							.clearfix
+								input(id='newpw2', type='password', placeholder='Confirm Password', name='confirmPassword');
+							button.btn.btn-body.primary-body(type='submit', value='Update') Update

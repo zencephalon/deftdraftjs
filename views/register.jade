@@ -1,11 +1,8 @@
-link(rel='stylesheet', href="/stylesheets/bootstrap.css");
-script(src="http://code.jquery.com/jquery-1.10.1.min.js");
-script(src="/js/bootstrap.js");
-link(rel='stylesheet', href="/stylesheets/style.css");
-link(rel='stylesheet', href="/stylesheets/register.css");
+include loginheaderlayout
 
+link(rel='stylesheet', href='/stylesheets/register.css');
 
-body
+body.login-header-body
 	.container.register-container
 		.content.register-box
 			.row
@@ -19,8 +16,8 @@ body
 								input(id='email', type='text', placeholder='Email', name='user[email]');
 							.clearfix
 								input(id='password', type='password', placeholder='Password', name='user[password]');
-							button.btn.primary(type='submit', value='Register') Register
+							button.btn.btn-body.primary-body(type='submit', value='Register') Register
 							a(href='/login')
-								button.btn.primary(type='button', value='Log in', aciton='/login') Log in
+								button.btn.btn-body.primary-body(type='button', value='Log in', aciton='/login') Log in
 							if locals.message
 								div#message #{locals.message}
