@@ -14,8 +14,11 @@ DeftDraft.prototype.nextWord = function() {
   var after = this.wordBoundaryAfter(sel.end, content);
   console.log(before + ", " + after);
   // wordBoundaryAfter(pos, content) -> position
-  if (this.atWordStart(before, sel.start) && this.atWordEnd(after, sel.end)) {
+  if (this.atWordStart(before) && this.atWordEnd(after)) {
     // go to the next word, wherever that is
+  } else {
+    console.log((sel.start - before) + ", " + (sel.end + after));
+    this.textarea.setSelection(sel.start - before, sel.end + after);
   }
 }
 
@@ -28,22 +31,30 @@ DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
   reg = /\W/;
   res = reg.exec(content);
   //console.log(res);
-  return res.index;
+  if (res !== null) {
+    return res.index;
+  } else {
+    return content.length;
+  }
 }
 
 DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
   content = content.substr(pos);
   reg = /\W/;
   res = reg.exec(content);
-  return res.index;
+  if (res !== null) {
+    return res.index;
+  } else {
+    return content.length;
+  }
 }
 
-DeftDraft.prototype.atWordStart = function(match_pos, cursor_pos) {
-  return (match_pos === 0 || (match_pos === null && cursor_pos === 0));
+DeftDraft.prototype.atWordStart = function(match_pos) {
+  return (match_pos === 0);
 }
 
-DeftDraft.prototype.atWordEnd = function(match_pos, cursor_pos, content_end) {
-  return (match_pos === 0 || (match_pos === null && cursor_pos === content_end));
+DeftDraft.prototype.atWordEnd = function(match_pos) {
+  return (match_pos === 0);
 }
 
 DeftDraft.prototype.prevWord = function() {
