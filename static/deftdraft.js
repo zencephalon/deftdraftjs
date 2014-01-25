@@ -14,6 +14,9 @@ DeftDraft.prototype.nextWord = function() {
   var after = this.wordBoundaryAfter(sel.end, content);
   console.log(before + ", " + after);
   // wordBoundaryAfter(pos, content) -> position
+  if (this.atWordStart(before, sel.start) && this.atWordEnd(after, sel.end)) {
+    // go to the next word, wherever that is
+  }
 }
 
 DeftDraft.prototype.reverse = function(str) {
@@ -36,11 +39,11 @@ DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
 }
 
 DeftDraft.prototype.atWordStart = function(match_pos, cursor_pos) {
-
+  return (match_pos === 0 || (match_pos === null && cursor_pos === 0));
 }
 
-DeftDraft.prototype.atWordEnd = function(match_pos, cursor_pos) {
-  
+DeftDraft.prototype.atWordEnd = function(match_pos, cursor_pos, content_end) {
+  return (match_pos === 0 || (match_pos === null && cursor_pos === content_end));
 }
 
 DeftDraft.prototype.prevWord = function() {
