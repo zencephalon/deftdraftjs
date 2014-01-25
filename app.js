@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -19,6 +18,9 @@ var mongoStore = require('connect-mongodb');
 // all environments
 app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'views'));
+
+//app.engine('html', require('jade').renderFile);
+
 app.set('view engine', 'jade');
 app.use(express.cookieParser());
 app.use(express.session({ store: mongoStore(app.set('db-uri')), secret: 'topsecretapp' })  );
@@ -29,10 +31,13 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')))
+app.use('/public', express.static(__dirname + '/public'));
 app.get('/*', function(req, res, next){ 
   res.setHeader('Last-Modified', (new Date()).toUTCString());
   next(); 
 });
+//app.set('')
+
 app.use(function(req, res, next){
   res.render('404', { status: 404, url: req.url });
 });
@@ -54,6 +59,7 @@ models.defineModels(mongoose, function() {
   app.User = User = mongoose.model('User');
   app.Document = Document = mongoose.model('Document');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
+  app.Doc_Collection = Doc_Collection = mongoose.model('Doc_Collection');
   db = mongoose.connect(app.set('db-uri'));
 });
 
@@ -140,24 +146,32 @@ app.get('/home', loadUser, function(req, res){
 
 app.get('/document/:d_id', loadUser, function(req, res){
 	//show group bills
-	console.log("WTFFFF");
 	//res.send('user' + req.params.id);
-	var d_title;
+	var d_title, d_content;
 	var callback = function(){
-		console.log("document title", d_title);
 		//get all the bills
-		console.log(d_title);
-		res.render('document.jade',{
-			locals: { title: d_title }
+		res.render('editor.jade',{ 
+			locals: {title: d_title, content: d_content, d_id: d_id }
 		});
+		//res.sendfile(__dirname+'/views'+'/editor.html');
 	}
 	var d_id = req.url.split('/')[2];
 	
 	var pagetitle = Document.findOne({ _id: d_id }, function(err, doc){
-		console.log("doc._id", doc._id);
 		d_title = doc.title;
+		d_content = doc.content;
 	}).exec(callback);
-	
+});
+
+app.post('/document/:d_id', loadUser, function(req, res){
+	console.log(req.body);
+	var d_id = req.url.split('/')[2];				//document id
+	console.log("d_id", d_id);
+	Document.update(
+		{ _id: d_id }, { $set: {'content': req.body.content} }, function(err, result){
+			console.log(result);
+		}
+	)
 });
 
 app.get('/logout', function(req, res){
@@ -236,7 +250,7 @@ app.get('/newdocument', loadUser, function(req, res){
 });
 
 app.post('/newdocument', loadUser, function(req, res){
-	console.log( "req.body.doc.title", req.body["doc"] );
+	console.log( "req.body.doc", req.body["doc"] );
 
 	var doc = new Document(req.body["doc"]);
 	doc["members"] = doc["members"].concat(req.currentUser.email);
@@ -244,7 +258,6 @@ app.post('/newdocument', loadUser, function(req, res){
 	//doc["content"] = req.body.doc["content"];
 
 	//add this document to each user
-	console.log("WTTTTTTTTTTTTFFFF");
 	//save the document
 	doc.save();		//save the group
 	console.log("doc", doc);
@@ -264,8 +277,67 @@ app.post('/newdocument', loadUser, function(req, res){
 	    		console.log("User not found");
 	    });
 	}
-	console.log("WTTTTTTTTTTTTFFFF");
 	res.redirect('/home');
+});
+
+app.post('/commit', loadUser, function(req, res){
+	var d_id = req.body.user.d_id;
+	console.log(req.body.user);
+	var commit_statement = req.body.user.commitstatement;
+	var content;
+
+	function createNewCollection(){
+		var coll = new Doc_Collection({ doc_id: d_id, commit_statement:  commit_statement, docs: content });
+		coll.save();	
+	}
+
+	function callback(){
+		//save content and corresponding d_id in a collection
+		Doc_Collection.findOne({ doc_id: d_id }, function(err, collection){
+			if (collection){
+				coll_id = collection._id;
+				//prev_docs = collection.docs.push(content); //[content, collection.docs ];
+				//prev_commits = collection.commit_statement.push(commit_statement); // [commit_statement, collection.commit_statement ];
+				console.log("Collection found... adding commit to collection");
+				/*Doc_Collection.update({ _id: coll_id }, { $set: {'docs': prev_docs, 'commit_statement': prev_commits } }, 
+					function(err, result){	console.log(result); });*/
+				Doc_Collection.update({ _id: coll_id }, { $push: {'docs': content, 'commit_statement': commit_statement } }, 
+					function(err, result){	console.log(result);	});
+			} else{
+				console.log("Collection not found. Creating a new one");
+				createNewCollection();
+			}
+		});
+	}
+
+	Document.findOne({ _id: d_id }, function(err, doc){
+		if (doc){
+			content = doc["content"];
+			console.log("content", content);
+			callback();
+		} else
+			console.log("Document not found");
+	});
+	res.redirect('/document/'+d_id+'');
+});
+
+app.get('/:d_id/commit_history', loadUser, function(req, res){
+
+	Doc_Collection.findOne({ doc_id: d_id }, function(err, collection){
+		if (collection){
+				console.log("Collection found... Showing commit history");
+				coll_id = collection._id;
+				//prev_docs = collection.docs.push(content); //[content, collection.docs ];
+				//prev_commits = collection.commit_statement.push(commit_statement); // [commit_statement, collection.commit_statement ];
+				/*Doc_Collection.update({ _id: coll_id }, { $set: {'docs': prev_docs, 'commit_statement': prev_commits } }, 
+					function(err, result){	console.log(result); });*/
+				Doc_Collection.update({ _id: coll_id }, { $push: {'docs': content, 'commit_statement': commit_statement } }, 
+					function(err, result){	console.log(result);	});
+			} else{
+				console.log("Collection not found");
+			}
+	});
+
 });
 
 app.get('/users', user.list);
