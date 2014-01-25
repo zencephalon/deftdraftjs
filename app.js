@@ -181,18 +181,6 @@ app.get('/logout', function(req, res){
 	res.redirect('/');
 });
 
-app.get('/home/documents/:d_id/edit', loadUser, function(){
-	//edit some bill
-});
-
-app.put('/home/documents/:d_id/edit', loadUser, function(){
-	//edit some bill
-});
-
-app.del('/home/documents/:d_id/', loadUser, function(){
-	// delete some bill
-});
-
 app.get('/login', function(req, res){
 	res.render('login.jade', {
     	locals: { title: 'Login', users: new User(), message: req.session.messages }
@@ -282,9 +270,11 @@ app.post('/newdocument', loadUser, function(req, res){
 });
 
 app.post('/commit', loadUser, function(req, res){
-	var d_id = req.body.user.d_id;
-	console.log(req.body.user);
-	var commit_statement = req.body.user.commitstatement;
+	//get content from editor
+	console.log("HHHH", req.body);
+
+	var d_id = req.body.d_id;
+	var commit_statement = req.body.commit_statement;
 	var content;
 	var uniq = 'uniq' + (new Date()).getTime();
 
@@ -306,6 +296,7 @@ app.post('/commit', loadUser, function(req, res){
 				/*Doc_Collection.update({ _id: coll_id }, { $set: {'docs': prev_docs, 'commit_statement': prev_commits } }, 
 					function(err, result){	console.log(result); });*/
 				doc = new Docs({ text: content, uniq_id: uniq });
+				console.log("doc", doc);
 				doc.save();
 				Doc_Collection.update({ _id: coll_id }, { $push: {'docs': doc, 'commit_statement': commit_statement } }, 
 					function(err, result){	console.log(result);	});
@@ -318,9 +309,8 @@ app.post('/commit', loadUser, function(req, res){
 
 	Document.findOne({ _id: d_id }, function(err, doc){
 		if (doc){
-			content = doc["content"];
+			content = req.body.content;
 			console.log("content", content);
-			
 			callback();
 			res.redirect('/document/'+d_id+'');
 		} else
@@ -330,7 +320,7 @@ app.post('/commit', loadUser, function(req, res){
 
 app.get('/:d_id/commithistory', loadUser, function(req, res){
 	var d_id = req.url.split('/')[1]; 
-	var docs = [], commit_statement, uniq = [];
+	var content = [], commit_statement, uniq = [];
 	Doc_Collection.findOne({ doc_id: d_id }, function(err, collection){
 		if (collection){
 			console.log("Collection found... Showing commit history");
@@ -339,27 +329,31 @@ app.get('/:d_id/commithistory', loadUser, function(req, res){
 			commit_statement = collection.commit_statement;
 				
 			//uniq = collection.uniq_id;
+			console.log("docs.length", docs.length);
 			for (var i = 0; i < docs.length ; i++ ){
 				console.log(i);
 				Docs.findOne({ uniq_id: docs[i].uniq_id }, function(err, doc){
 					if (doc){
 						console.log("doc.text", doc.uniq_id);
-						docs.push(doc.text.text);
+						content.push(doc.text.text);
 						uniq.push(doc.uniq_id);
 					}
-				}).exec(callrender)
+				}).exec(renderFile);
 			}
-		} else
+		} else{
 			console.log("Collection not found");
+			renderFile();
+		}
 	});
 	var commit_count = 0;
-	function callrender(){
+	function renderFile(){
 		commit_count++
+		console.log("docs.length", docs.length);
 		//wait for all commits to load
-		if ( commit_count == docs.length-1 ){
+		if ( commit_count > docs.length-1 ){
 			console.log("uniq", uniq);
 			res.render('commithistory.jade',{
-				locals: { title: 'Commit history', docs: docs, commit_statement: commit_statement, uniq: uniq, d_id: d_id}
+				locals: { title: 'Commit history', docs: content, commit_statement: commit_statement, uniq: uniq, d_id: d_id}
 			});
 		}
 	}
@@ -378,6 +372,7 @@ app.get('/:d_id/:uniq_id', loadUser, function(req, res){
 			}).exec(renderFile);
 		} else{
 			console.log("Collection not found");
+			renderFile();
 		}
 	});
 	function renderFile(){
