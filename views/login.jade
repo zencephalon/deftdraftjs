@@ -1,17 +1,26 @@
-.page
-  h2 #{locals.title}
-  p
-    a.button(href='/register') Create an account
-  form.users#login(method='post', action='/login') #{locals.users.email}
-    include fields
-    if locals.users
-      div
-        label(for='remember_me') Remember me:
-        input#remember_me(type='checkbox', name='remember_me')
-      div
-        input(type='submit', value='Log In')
-    if locals.message
-      div#message #{locals.message}
-      
-        
+link(rel='stylesheet', href="/stylesheets/bootstrap.css");
+script(src="http://code.jquery.com/jquery-1.10.1.min.js");
+script(src="/js/bootstrap.js");
 
+body
+  #container
+    #content
+      #row
+        #login-form
+          h2 #{locals.title}
+          form(action="")
+
+  #container
+    a.button(href='/register') Create an account
+
+  #login-box
+    form.users#login(method='post', action='/login') #{locals.users.email}
+      include fields
+      if locals.users
+        #div1
+          label(for='remember_me') Remember me:
+          input#remember_me(type='checkbox', name='remember_me')
+        
+          input(type='submit', value='Log In')
+      if locals.message
+        div#message #{locals.message}
