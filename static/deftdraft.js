@@ -57,6 +57,19 @@ DeftDraft.prototype.prevParagraph = function() {
 
 // =================== after / before =================
 
+DeftDraft.prototype.selectForward = function(sel, content, regex) {
+  content_after = content.substr(sel.end);
+  res = regex.exec(content_after);
+
+  if (res !== null) {
+    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
+  } else {
+    sel.start = 0;
+    sel.end = 0;
+    this.selectForward(sel, content, regex);
+  }  
+}
+
 DeftDraft.prototype.selectWordAfter = function(sel, content) {
   content_after = content.substr(sel.end);
   res = /[\w']+(\W|$)/.exec(content_after);
