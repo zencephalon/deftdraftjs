@@ -1,12 +1,13 @@
 function DeftDraft(textarea) {
   this.textarea = textarea;
 }
-
+// Main function, delegates to helpers.
 DeftDraft.prototype.command = function(dir, obj_t) {
   this.textFunc(obj_t).call(this, function(sel, content) { 
     this.selectFunc(dir, sel, content, DeftDraft.regexDict[dir][obj_t]) });
 }
-
+// If the selection lies within the text object's boundaries, expand to select it
+// If a text object is already selected, select the next or previous one.
 DeftDraft.prototype.textFunc = function(t_obj) {
   return function(func) {
     var content = this.textarea.val();
@@ -22,7 +23,7 @@ DeftDraft.prototype.textFunc = function(t_obj) {
     }
   }
 }
-
+// Determine where the boundary for the text object lies in either direction.
 DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
   return function(pos, content) {
     b = DeftDraft.regexDict[dir][t_obj];
@@ -31,13 +32,7 @@ DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
     return (res = b[1].exec(content)) !== null ? res.index : content.length;
   }
 }
-
-// =================== select helpers =================
-
-DeftDraft.prototype.selectFunc = function(dir, sel, content, regex) {
-  return dir == 'n' ? this.selectForward(sel, content, regex) : this.selectBackward(sel, content, regex);
-}
-
+// Select the next instance of the regex, wrapping around if needed.
 DeftDraft.prototype.selectForward = function(sel, content, regex) {
   res = regex.exec(content.substr(sel.end));
 
@@ -48,7 +43,7 @@ DeftDraft.prototype.selectForward = function(sel, content, regex) {
     this.selectForward(sel, content, regex);
   }  
 }
-
+// As above but backward.
 DeftDraft.prototype.selectBackward = function(sel, content, regex) {
   res = regex.exec(content.substr(0, sel.start).split('').reverse().join(''));
 
@@ -59,35 +54,36 @@ DeftDraft.prototype.selectBackward = function(sel, content, regex) {
     this.selectBackward(sel, content, regex);
   }
 }
-
-// ======================== boundaries =====================
-
+// Convenience wrapper.
+DeftDraft.prototype.selectFunc = function(dir, sel, content, regex) {
+  return dir == 'n' ? this.selectForward(sel, content, regex) : this.selectBackward(sel, content, regex);
+}
+// Stores the regexes used.
 DeftDraft.regexDict = {
-  'a' : {
-    'w' : [0, /\W/],
-    's' : [1, /[.!?](\W|$)/],
-    'q' : [0, /\n\n/]
+  'a' : { // after, for boundaries
+    'w' : [0, /\W/], // word, no offset, non-word char
+    's' : [1, /[.!?](\W|$)/], // sentence, offset for punctuation, punctuation followed by non-word or end
+    'q' : [0, /\n\n/] // qaragraph, no offset, two new lines
   },
-  'b' : {
-    'w' : [0, /\W/],
-    's' : [0, /((^|\W)[.!?]|\n)/],
-    'q' : [0, /\n\n/]
+  'b' : { // before, for boundaries -- note these regexes operate on the input reversed
+    'w' : [0, /\W/], // word, no offset, non-word char
+    's' : [0, /((^|\W)[.!?]|\n)/], // sentence, no offset, (punctuation followed by non-word or start) or new line
+    'q' : [0, /\n\n/] // qaragraph, no offset, two new lines
   },
-  'n' : {
-    'w' : /[\w']+(\W|$)/,
-    's' : /.*?[.!?](\W|$)/,
-    'q' : /.+(\n\n|$)/
+  'n' : { // next, for selections
+    'w' : /[\w']+(\W|$)/, // word, a number of word chars ended by end or non-word char
+    's' : /.*?[.!?](\W|$)/, // sentence, a number of chars ended by punctuation and non-char char or end
+    'q' : /.+(\n\n|$)/ // qaragraph, a number of chars ended by two new lines or the end
   },
   'p' : {
-    'w' : /(^|\W)[\w']+(\W|$)/,
-    's' : /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/,
-    'q' : /(\n\n|^).+(\n\n|$)/
+    'w' : /(^|\W)[\w']+(\W|$)/, // word, a number of word chars ended by end or non-word char
+    's' : /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/, // sentence, can start with new paragraph or start of text, or end of earlier sentence, a number of chars, ending in punctuation followed by non-word char or end
+    'q' : /(\n\n|^).+(\n\n|$)/ // qaragraph, start with new paragraph or start of text end with paragraph or end
   }
 }
-
-// =================== bindings ===================
-
+// Create new DeftDraft object.
 var dd = new DeftDraft($('#editor'));
+// Set the key bindings.
 ['w', 's', 'q'].forEach(function (letter) {
   Mousetrap.bind('ctrl+' + letter, function() {dd.command('n', letter); return false});
   Mousetrap.bind('ctrl+shift+' + letter, function() {dd.command('p', letter); return false});
