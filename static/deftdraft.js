@@ -15,7 +15,7 @@ DeftDraft.prototype.textFunc = function(t_obj) {
     var before = this.boundaryFunc.call(this, 'b', t_obj)(sel.start, content);
     var after = this.boundaryFunc.call(this, 'a', t_obj)(sel.end, content);
 
-    if (this.alreadySelected(before, after)) {
+    if (before == 0 && after == 0) {
       func.call(this, sel, content);
     } else {
       this.textarea.setSelection(sel.start - before, sel.end + after);
@@ -27,7 +27,7 @@ DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
   return function(pos, content) {
     b = DeftDraft.regexDict[dir][t_obj];
     pos -= b[0];
-    content = dir == 'a' ? content.substr(pos) : content.substr(0, pos).split("").reverse("").join("");
+    content = dir == 'a' ? content.substr(pos) : content.substr(0, pos).split('').reverse().join('');
     return (res = b[1].exec(content)) !== null ? res.index : content.length;
   }
 }
@@ -50,7 +50,7 @@ DeftDraft.prototype.selectForward = function(sel, content, regex) {
 }
 
 DeftDraft.prototype.selectBackward = function(sel, content, regex) {
-  res = regex.exec(this.reverse(content.substr(0, sel.start)));
+  res = regex.exec(content.substr(0, sel.start).split('').reverse().join(''));
 
   if (res !== null) {
     this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
@@ -83,16 +83,6 @@ DeftDraft.regexDict = {
     's' : /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/,
     'q' : /(\n\n|^).+(\n\n|$)/
   }
-}
-
-// ===================== helpers ==================
-
-DeftDraft.prototype.reverse = function(str) {
-  return str.split("").reverse().join("");
-}
-
-DeftDraft.prototype.alreadySelected = function(start, end) {
-  return (start === 0 && end === 0);
 }
 
 // =================== bindings ===================
