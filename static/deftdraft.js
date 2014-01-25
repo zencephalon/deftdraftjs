@@ -14,18 +14,18 @@ DeftDraft.prototype.word = function(func) {
   var after = this.wordBoundaryAfter(sel.end, content);
 
   if (this.alreadySelected(before, after)) {
-    func(sel, content);
+    func.call(this, sel, content);
   } else {
     this.textarea.setSelection(sel.start - before, sel.end + after);
   }  
 }
 
 DeftDraft.prototype.nextWord = function() {
-  that = this; this.word(function(sel, content) {that.selectWordAfter(sel, content)});
+  this.word(this.selectWordAfter);
 }
 
 DeftDraft.prototype.prevWord = function() {
-  that = this; this.word(function(sel, content) {that.selectWordBefore(sel, content)});
+  this.word(this.selectWordBefore);
 }
 
 DeftDraft.prototype.selectWordAfter = function(sel, content) {
@@ -84,12 +84,12 @@ DeftDraft.prototype.alreadySelected = function(start, end) {
   return (start === 0 && end === 0);
 }
 
-DeftDraft.prototype.sentence = function(func) {
+DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
   var content = this.textarea.val();
   var sel = this.textarea.getSelection();
 
-  var before = this.sentenceBoundaryBefore(sel.start, content); // -> position
-  var after = this.sentenceBoundaryAfter(sel.end, content);
+  var before = beforeFunc(sel.start, content); // -> position
+  var after = afterFunc(sel.end, content);
 
   console.log(before + ", " + after);
   if (this.alreadySelected(before, after)) {
@@ -97,6 +97,11 @@ DeftDraft.prototype.sentence = function(func) {
   } else {
     this.textarea.setSelection(sel.start - before, sel.end + after);
   }   
+}
+
+DeftDraft.prototype.sentence = function(func) {
+  that = this;
+  //this.textobject(function(pos, content) {that.sentenceBoundaryBefore,)
 }
 
 DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
