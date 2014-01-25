@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -152,12 +151,8 @@ app.get('/document/:d_id', loadUser, function(req, res){
 	var callback = function(){
 		console.log("document title", d_title);
 		//get all the bills
-		console.log(d_title);
-		/*res.render('document.jade',{
-			locals: { title: d_title }
-		});*/
-		//res.render('editor.html');
-		res.sendfile(__dirname+'/views'+'/editor.html');
+		res.render('editor.jade',{  });
+		//res.sendfile(__dirname+'/views'+'/editor.html');
 	}
 	var d_id = req.url.split('/')[2];
 	
