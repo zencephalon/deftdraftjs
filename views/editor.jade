@@ -13,6 +13,8 @@ body
      input(name='user[commitstatement]', value='Write your commit comments here', type='')
      input(name='user[d_id]', value=locals.d_id )
      input(type='submit', value='Commit')
+    div
+      a(href='/'+locals.d_id+'/commithistory') Commit History
        //- | #{content}
       //- | Some sample inputs for our use. Huh, could this actually? Really though? Seems strange. Strange.
 

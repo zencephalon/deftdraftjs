@@ -35,8 +35,8 @@ function defineModels(mongoose, fn) {
     next();
   });
 
-  Collection = new Schema({
-    'docs': [Document]
+  Doc_Collection = new Schema({
+    'docs': [String]
     ,'commit_statement': [String]
     ,'commit_id': [ObjectId]
     ,'doc_id': String
@@ -122,7 +122,7 @@ function defineModels(mongoose, fn) {
 
   mongoose.model('Document', Document);
   mongoose.model('User', User);
-  mongoose.model('Collection', Collection);
+  mongoose.model('Doc_Collection', Doc_Collection);
   mongoose.model('LoginToken', LoginToken);
   fn();
 }
