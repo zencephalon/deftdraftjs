@@ -12,13 +12,28 @@ DeftDraft.prototype.nextWord = function() {
 
   var before = this.wordBoundaryBefore(sel.start, content); // -> position
   var after = this.wordBoundaryAfter(sel.end, content);
-  console.log(before + ", " + after);
+  //console.log(before + ", " + after);
   // wordBoundaryAfter(pos, content) -> position
   if (this.atWordStart(before) && this.atWordEnd(after)) {
+    console.log("Hello!");
+    word_after = this.wordAfter(sel.end, content);
+    this.textarea.setSelection(sel.end + word_after[0], sel.end + word_after[0] + word_after[1]);
     // go to the next word, wherever that is
   } else {
     console.log((sel.start - before) + ", " + (sel.end + after));
     this.textarea.setSelection(sel.start - before, sel.end + after);
+  }
+}
+
+DeftDraft.prototype.wordAfter = function(pos, content) {
+  content = content.substr(pos);
+  reg = /\w+/;
+  res = reg.exec(content);
+  console.log(res);
+  if (res !== null) {
+    return [res.index, res[0].length];
+  } else {
+    return null;
   }
 }
 
