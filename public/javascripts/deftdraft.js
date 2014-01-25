@@ -260,7 +260,6 @@ function checkUpdate(e){
 }
 
 function updateServer(){
-  diffs = [];
   content = dd.textarea.val();
   //console.log(content);
   console.log("updating...");
@@ -269,6 +268,16 @@ function updateServer(){
     "content": content
   });
 }
+
+$("#postContent").click(function(req, res){
+  content = dd.textarea.val();
+  var d_id = document.URL.split('/')[4];
+  $.post( '/commit', {
+    "commit_statement": $("#commit_message").val()
+    ,"content": content
+    ,"d_id": d_id
+  }); 
+});
 
 var cursor_pos;
 var text = dd.textarea.val();
@@ -373,3 +382,4 @@ function getCaret(el) {
   }  
   return 0; 
 }
+
