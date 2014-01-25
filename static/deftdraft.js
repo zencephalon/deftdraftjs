@@ -4,34 +4,12 @@ function DeftDraft(textarea) {
 
 // ================== next / prev ===================
 
-DeftDraft.prototype.nextWord = function() {
-  this.textFunc('w').call(this, function(sel, content) { this.selectForward(sel, content, 
-    /[\w']+(\W|$)/ )});
+DeftDraft.prototype.next = function(obj_t) {
+  this.textFunc(obj_t).call(this, function(sel, content) { this.selectForward(sel, content, DeftDraft.regexDict['n'][obj_t]) });
 }
 
-DeftDraft.prototype.nextSentence = function() {
-  this.textFunc('s').call(this, function(sel, content) { this.selectForward(sel, content, 
-    /.*?[.!?](\W|$)/ )});
-}
-
-DeftDraft.prototype.nextParagraph = function() {
-  this.textFunc('q').call(this, function(sel, content) { this.selectForward(sel, content, 
-    /.+(\n\n|$)/ )});
-}
-
-DeftDraft.prototype.prevWord = function() {
-  this.textFunc('w').call(this, function(sel, content) { this.selectBackward(sel, content, 
-    /(^|\W)[\w']+(\W|$)/ )});
-}
-
-DeftDraft.prototype.prevSentence = function() {
-  this.textFunc('s').call(this, function(sel, content) { this.selectBackward(sel, content, 
-    /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/ )});
-}
-
-DeftDraft.prototype.prevParagraph = function() {
-  this.textFunc('q').call(this, function(sel, content) { this.selectBackward(sel, content, 
-    /(\n\n|^).+(\n\n|$)/ )});
+DeftDraft.prototype.prev = function(obj_t) {
+  this.textFunc(obj_t).call(this, function(sel, content) { this.selectBackward(sel, content, DeftDraft.regexDict['p'][obj_t]) });
 }
 
 // ================= text element helpers ================
@@ -93,7 +71,7 @@ DeftDraft.prototype.boundary = function(dir, pos, content, regex) {
 
 // ======================== boundaries =====================
 
-DeftDraft.boundaries = {
+DeftDraft.regexDict = {
   'a' : {
     'w' : [0, /\W/],
     's' : [1, /[.!?](\W|$)/],
@@ -103,12 +81,22 @@ DeftDraft.boundaries = {
     'w' : [0, /\W/],
     's' : [0, /((^|\W)[.!?]|\n)/],
     'q' : [0, /\n\n/]
+  },
+  'n' : {
+    'w' : /[\w']+(\W|$)/,
+    's' : /.*?[.!?](\W|$)/,
+    'q' : /.+(\n\n|$)/
+  },
+  'p' : {
+    'w' : /(^|\W)[\w']+(\W|$)/,
+    's' : /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/,
+    'q' : /(\n\n|^).+(\n\n|$)/
   }
 }
 
 DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
   return function(pos, content) {
-    b = DeftDraft.boundaries[dir][t_obj];
+    b = DeftDraft.regexDict[dir][t_obj];
     pos -= b[0];
     return this.boundary(dir, pos, content, b[1]);
   }
@@ -127,9 +115,9 @@ DeftDraft.prototype.alreadySelected = function(start, end) {
 // =================== bindings ===================
 
 var dd = new DeftDraft($('#editor'));
-Mousetrap.bind('ctrl+w', function() {dd.nextWord(); return false});
-Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord(); return false});
-Mousetrap.bind('ctrl+s', function() {dd.nextSentence(); return false});
-Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence(); return false});
-Mousetrap.bind('ctrl+q', function() {dd.nextParagraph(); return false});
-Mousetrap.bind('ctrl+shift+q', function() {dd.prevParagraph(); return false});
+Mousetrap.bind('ctrl+w', function() {dd.next('w'); return false});
+Mousetrap.bind('ctrl+shift+w', function() {dd.prev('w'); return false});
+Mousetrap.bind('ctrl+s', function() {dd.next('s'); return false});
+Mousetrap.bind('ctrl+shift+s', function() {dd.prev('s'); return false});
+Mousetrap.bind('ctrl+q', function() {dd.next('q'); return false});
+Mousetrap.bind('ctrl+shift+q', function() {dd.prev('q'); return false});
