@@ -341,6 +341,7 @@ app.get('/:d_id/commit_history', loadUser, function(req, res){
 });
 
 app.get('/users', user.list);
+app.get('/editor', routes.editor);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port %d, environment: %s', app.get('port'), app.settings.env)

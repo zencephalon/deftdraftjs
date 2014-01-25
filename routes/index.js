@@ -23,3 +23,6 @@ exports.badlogin = function(req, res){
 	//res.render('login', {title: 'Login' }, { locals: { user: new User(), badlogin_: 'true' } });
 }
 
+exports.editor = function(req, res){
+	res.render('editor', { title: 'Editor' });
+}
