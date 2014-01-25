@@ -51,15 +51,15 @@ DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
 }
 
 DeftDraft.prototype.word = function(func) {
-  this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
+  this.textobject(this.wordBoundaryBefore(), this.wordBoundaryAfter(), func);
 }
 
 DeftDraft.prototype.sentence = function(func) {
-  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
+  this.textobject(this.sentenceBoundaryBefore(), this.sentenceBoundaryAfter(), func);
 }
 
 DeftDraft.prototype.paragraph = function(func) {
-  this.textobject(this.paragraphBoundaryBefore, this.paragraphBoundaryAfter, func);
+  this.textobject(this.paragraphBoundaryBefore(), this.paragraphBoundaryAfter(), func);
 }
 
 // =================== select helpers =================
@@ -92,47 +92,56 @@ DeftDraft.prototype.returnResult = function(res, content) {
   return res !== null ? res.index : content.length;
 }
 
-DeftDraft.prototype.boundaryAfter = function(pos, content, regex) {
-  content = content.substr(pos);
-  return this.returnResult(regex.exec(content), content);
-}
-
-DeftDraft.prototype.boundaryBefore = function(pos, content, regex) {
-  content = this.reverse(content.substr(0, pos));
+DeftDraft.prototype.boundary = function(dir, pos, content, regex) {
+  content = dir == 'a' ? content.substr(pos) : this.reverse(content.substr(0, pos));
   return this.returnResult(regex.exec(content), content);
 }
 
 // ======================== boundaries =====================
 
-DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
-  return this.boundaryAfter(pos, content, 
-    /\W/ );
+DeftDraft.boundaries = {
+  'a' : {
+    'w' : [0, /\W/],
+    's' : [1, /[.!?](\W|$)/],
+    'p' : [0, /\n\n/]
+  },
+  'b' : {
+    'w' : [0, /\W/],
+    's' : [0, /((^|\W)[.!?]|\n)/],
+    'p' : [0, /\n\n/]
+  }
 }
 
-DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
-  pos--;
-  return this.boundaryAfter(pos, content,
-    /[.!?](\W|$)/ );
+DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
+  return function(pos, content) {
+    b = DeftDraft.boundaries[dir][t_obj];
+    pos -= b[0];
+    return this.boundary(dir, pos, content, b[1]);
+  }
 }
 
-DeftDraft.prototype.paragraphBoundaryAfter = function(pos, content) {
-  return this.boundaryAfter(pos, content,
-    /\n\n/ );
+DeftDraft.prototype.wordBoundaryAfter = function() {
+  return this.boundaryFunc('a', 'w');
 }
 
-DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
-  return this.boundaryBefore(pos, content,
-    /\W/ );
+DeftDraft.prototype.sentenceBoundaryAfter = function() {
+  return this.boundaryFunc('a', 's');
 }
 
-DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
-  return this.boundaryBefore(pos, content,
-    /((^|\W)[.!?]|\n)/ );
+DeftDraft.prototype.paragraphBoundaryAfter = function() {
+  return this.boundaryFunc('a', 'p');
 }
 
-DeftDraft.prototype.paragraphBoundaryBefore = function(pos, content) {
-  return this.boundaryBefore(pos, content,
-    /\n\n/ );
+DeftDraft.prototype.wordBoundaryBefore = function() {
+  return this.boundaryFunc('b', 'w');
+}
+
+DeftDraft.prototype.sentenceBoundaryBefore = function() {
+  return this.boundaryFunc('b', 's');
+}
+
+DeftDraft.prototype.paragraphBoundaryBefore = function() {
+  return this.boundaryFunc('b', 'p');
 }
 
 // ===================== helpers ==================
