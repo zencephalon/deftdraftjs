@@ -223,8 +223,11 @@ function checkUpdate(e){
       updateServer();
   }
 }
+var dd = document.getElementById("editor");
 
 function updateServer(){
+  dd.textarea();
+
   console.log("updating...");
   content = $("#editor").val();
   $.post( document.URL, {
