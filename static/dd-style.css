@@ -2,24 +2,8 @@ body {
     background-color: #ffffff;
 }
 .deft {
-  font-family: Vollkorn; font-size: 100%; line-height: 130%; 
-  height: 13em;
-  width: 100%;
-  border: none;
-}
-#buffers {
-    text-align: right;
-}
-#container {
-    margin: 0px auto;
-    max-width: 60em;
-}
-#sidebar {
-    float: right;
-}
-#dd-nav {
-    display: none;
-}
-.highlight {
-    background-color: #ffeeee;
+    font-family: Vollkorn; font-size: 100%; line-height: 130%; 
+    height: 13em;
+    width: 100%;
+    border: none;
 }
