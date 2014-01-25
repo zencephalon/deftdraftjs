@@ -1,0 +1,14 @@
+.page
+	h2 Register
+	form.users(method='post', action='/register' )
+		div
+			label Name:
+			input(name='user[name]', value='')
+		include fields
+		div
+			input(type='submit', value='Register')
+			div \ or
+				div
+					a(href='/login') Log in
+		if locals.message
+			div#message #{locals.message}

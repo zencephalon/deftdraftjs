@@ -1,0 +1,11 @@
+doctype html
+html
+	head
+		title #{locals.title}
+		link(rel='stylesheet', href='/stylesheets/style.css')
+	div#home.navBar
+		a(href='/home/')	Home
+	div#logout.navBar
+		a(href='/logout')	Logout
+	body
+		block content
