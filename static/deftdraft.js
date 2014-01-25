@@ -6,6 +6,21 @@ function DeftDraft(textarea) {
 // If we are in a word (no selection or partial selection), select it.
 // If we are selecting a word, select the next word.
 
+DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
+  var content = this.textarea.val();
+  var sel = this.textarea.getSelection();
+
+  var before = beforeFunc.call(this, sel.start, content); // -> position
+  var after = afterFunc.call(this, sel.end, content);
+
+  console.log(before + ", " + after);
+  if (this.alreadySelected(before, after)) {
+    func.call(this, sel, content);
+  } else {
+    this.textarea.setSelection(sel.start - before, sel.end + after);
+  }   
+}
+
 DeftDraft.prototype.word = function(func) {
   this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
 }
@@ -74,20 +89,6 @@ DeftDraft.prototype.alreadySelected = function(start, end) {
   return (start === 0 && end === 0);
 }
 
-DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
-  var content = this.textarea.val();
-  var sel = this.textarea.getSelection();
-
-  var before = beforeFunc.call(this, sel.start, content); // -> position
-  var after = afterFunc.call(this, sel.end, content);
-
-  console.log(before + ", " + after);
-  if (this.alreadySelected(before, after)) {
-    func.call(this, sel, content);
-  } else {
-    this.textarea.setSelection(sel.start - before, sel.end + after);
-  }   
-}
 
 DeftDraft.prototype.sentence = function(func) {
   this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
@@ -95,7 +96,7 @@ DeftDraft.prototype.sentence = function(func) {
 
 DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
   content = this.reverse(content.substr(0, pos));
-  res = /\W[.!?]/.exec(content);
+  res = /(^|\W)[.!?]/.exec(content);
 
   if (res !== null) {
     return res.index;
@@ -140,11 +141,14 @@ DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
 }
 
 DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
+  sel.start = sel.start - 1;
   content_before = this.reverse(content.substr(0, sel.start));
-  res = /\W[.!?].*?\W/.exec(content_before);
+  res = /(^|\W[.!?]).*?(\W[.!?]|$)/.exec(content_before);
+
+  console.log(res);
 
   if (res !== null) {
-    this.textarea.setSelection(sel.start - res.index - res[0].length, sel.start - res.index);
+    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index + res[1].length);
   } else {
     sel.start = content.length;
     sel.end = content.length;
