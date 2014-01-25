@@ -113,7 +113,7 @@ DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
 
 DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
   content = content.substr(pos);
-  res = /[.!?]\W/.exec(content);
+  res = /[.!?](\W|$)/.exec(content);
 
   if (res !== null) {
     return res.index;
