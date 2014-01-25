@@ -33,29 +33,32 @@ DeftDraft.prototype.paragraph = function(func) {
 
 DeftDraft.prototype.nextWord = function() {
   this.word(function(sel, content) { this.selectForward(sel, content, 
-    /[\w']+(\W|$)/) });
+    /[\w']+(\W|$)/ )});
 }
 
 DeftDraft.prototype.nextSentence = function() {
-  this.word(function(sel, content) { this.selectForward(sel, content, 
-    /.*?[.!?](\W|$)/ });
+  this.sentence(function(sel, content) { this.selectForward(sel, content, 
+    /.*?[.!?](\W|$)/ )});
 }
 
 DeftDraft.prototype.nextParagraph = function() {
-  this.word(function(sel, content) { this.selectForward(sel, content, 
-    /.+(\n\n|$)/ });
+  this.paragraph(function(sel, content) { this.selectForward(sel, content, 
+    /.+(\n\n|$)/ )});
 }
 
 DeftDraft.prototype.prevWord = function() {
-  this.word(this.selectWordBefore);
+  this.word(function(sel, content) { this.selectBackward(sel, content,
+    /(^|\W)[\w']+(\W|$)/ )});
 }
 
 DeftDraft.prototype.prevSentence = function() {
-  this.sentence(this.selectSentenceBefore);
+  this.sentence(function(sel, content) { this.selectBackward(sel, content,
+    /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/ )});
 }
 
 DeftDraft.prototype.prevParagraph = function() {
-  this.paragraph(this.selectParagraphBefore);
+  this.paragraph(function(sel, content) { this.selectBackward(sel, content,
+    /(\n\n|^).+(\n\n|$)/ )});
 }
 
 // =================== after / before =================
@@ -73,44 +76,17 @@ DeftDraft.prototype.selectForward = function(sel, content, regex) {
   }  
 }
 
-DeftDraft.prototype.selectWordBefore = function(sel, content) {
+DeftDraft.prototype.selectBackward = function(sel, content, regex) {
   content_before = this.reverse(content.substr(0, sel.start));
-  res = /(^|\W)[\w']+(\W|$)/.exec(content_before);
+  res = regex.exec(content_before);
 
   if (res !== null) {
     this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
   } else {
     sel.start = content.length;
     sel.end = content.length;
-    this.selectWordBefore(sel, content);
+    this.selectBackward(sel, content, regex);
   }
-}
-
-DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
-  content_before = this.reverse(content.substr(0, sel.start));
-  res = /(^|\W)[.?!].*?(\W[.!?]|$)/.exec(content_before);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
-  } else {
-    sel.start = content.length;
-    sel.end = content.length;
-    this.selectSentenceBefore(sel, content);
-  }
-}
-
-DeftDraft.prototype.selectParagraphBefore = function(sel, content) {
-  content_before = this.reverse(content.substr(0, sel.start));
-  res = /(\n\n|^).+(\n\n|$)/.exec(content_before);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
-  } else {
-    sel.start = content.length;
-    sel.end = content.length;
-    this.selectParagraphBefore(sel, content);
-  }
-
 }
 
 // ==================== boundaries ===================
