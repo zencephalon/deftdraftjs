@@ -1,5 +1,5 @@
 .register-container {
-	background-color: #003DF2;
+	background-color: #E8F2F5;
 	border-radius:10px;
 	margin-top: 20px;
 	width: 300px;
@@ -23,8 +23,12 @@ h2 {
 	padding-bottom: 0px;
 	margin-top: 0px;
 	margin-bottom: 10px;
-	color:black;
 	text-align: center;
+}
+
+.btn {
+	background-color: #36AECC;
+	color: #fff;
 }
 
 #message {
