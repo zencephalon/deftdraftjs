@@ -19,6 +19,9 @@ var mongoStore = require('connect-mongodb');
 // all environments
 app.set('port', process.env.PORT || 4000);
 app.set('views', path.join(__dirname, 'views'));
+
+//app.engine('html', require('jade').renderFile);
+
 app.set('view engine', 'jade');
 app.use(express.cookieParser());
 app.use(express.session({ store: mongoStore(app.set('db-uri')), secret: 'topsecretapp' })  );
@@ -29,10 +32,13 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')))
+app.use('/public', express.static(__dirname + '/public'));
 app.get('/*', function(req, res, next){ 
   res.setHeader('Last-Modified', (new Date()).toUTCString());
   next(); 
 });
+//app.set('')
+
 app.use(function(req, res, next){
   res.render('404', { status: 404, url: req.url });
 });
@@ -140,16 +146,18 @@ app.get('/home', loadUser, function(req, res){
 
 app.get('/document/:d_id', loadUser, function(req, res){
 	//show group bills
-	console.log("WTFFFF");
+	console.log("WTFFFFFF");
 	//res.send('user' + req.params.id);
 	var d_title;
 	var callback = function(){
 		console.log("document title", d_title);
 		//get all the bills
 		console.log(d_title);
-		res.render('document.jade',{
+		/*res.render('document.jade',{
 			locals: { title: d_title }
-		});
+		});*/
+		//res.render('editor.html');
+		res.sendfile(__dirname+'/views'+'/editor.html');
 	}
 	var d_id = req.url.split('/')[2];
 	
