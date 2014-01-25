@@ -2,10 +2,6 @@ function DeftDraft(textarea) {
   this.textarea = textarea;
 }
 
-
-// If we are in a word (no selection or partial selection), select it.
-// If we are selecting a word, select the next word.
-
 DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
   var content = this.textarea.val();
   var sel = this.textarea.getSelection();
