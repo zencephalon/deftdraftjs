@@ -35,6 +35,14 @@ function defineModels(mongoose, fn) {
     next();
   });
 
+  Collection = new Schema({
+    'docs': [Document]
+    ,'commit_statement': [String]
+    ,'commit_id': [ObjectId]
+    ,'doc_id': String
+  })
+
+
   /* Model: User */
   function validate(value) {
     return value && value.length;
@@ -114,6 +122,7 @@ function defineModels(mongoose, fn) {
 
   mongoose.model('Document', Document);
   mongoose.model('User', User);
+  mongoose.model('Collection', Collection);
   mongoose.model('LoginToken', LoginToken);
   fn();
 }

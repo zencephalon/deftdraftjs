@@ -50,20 +50,18 @@ function r_playback() {
 
 
 track_changes = function() {
-    if (lc_time < 0) { lc_time = getTime(); }
 
-    now_text = deft.value;
-    now_cursor_pos = getCaret(deft);
+    now_text = editor_div.value;
+    now_cursor_pos = getCaret(editor_div);
 
     d_tx = now_text.length - text.length;
     d_cr = now_cursor_pos - cursor_pos;
 
-    if (now_text == text || special_cmd) {
+    if (now_text == text) {
         change_type = "no change";
-        special_cmd = false;
     } else {
-        change_time = getTime(); 
-        d_t = change_time - lc_time;
+        var currentTime = Math.floor( new Date().getTime()/1000 );
+        d_t = currentTime - lc_time;
         changes++;
 
         if (d_tx == d_cr) {
@@ -87,7 +85,7 @@ track_changes = function() {
         }
 
         text = now_text;
-        lc_time = change_time;
+        lc_time = currentTime;
     }
 
     cursor_pos = getCaret(deft);
@@ -201,3 +199,55 @@ bind('ctrl+h', function() { left(); });
 
 bind('ctrl+s', function() { commit(); });
 bind('ctrl+space', function() { scratch(); });
+
+
+function trackChanges(){
+  
+  now_text = dd.textarea.val();
+  now_cursor_pos = getCaret(editor_div);
+
+  d_tx = now_text.length - text.length;
+  d_cr = now_cursor_pos - cursor_pos;
+  //console.log(d_tx, d_cr);
+  if (now_text == text)
+    change_type = "no change";
+  else{
+    var currentTime = Math.floor( new Date().getTime()/1000 );
+    d_t = currentTime - lc_time;
+    console.log(d_tx, d_cr);
+    opChange();
+    if ( d_tx > 0 && d_cr > 0  && d_tx == d_cr ) {              
+        //insert operation at continous location
+      change_type = "ins";
+      diff = ["ins", cursor_pos, now_text.substr(cursor_pos, d_cr), d_t];
+      operation = 1;
+    } else if ( ( d_tx < 0 ^ d_cr < 0 ) && d_tx != d_cr ) {
+      //insert at different location
+      operation = 2;
+    } else if ( (d_tx < 0 && d_cr < 0 ) && d_tx != d_cr ) {
+      //delete at continous location
+      operation = 3;
+      change_type = "del";
+      diff = ["del", cursor_pos, -d_tx, d_t];
+    } else{
+      //delete at different location
+      operation = 4;
+      change_type = "del";
+      diff = ["del", cursor_pos, -d_tx, d_t];
+    }
+    console.log(diff);
+    lc_time = currentTime;
+  }
+
+  function opChange(){
+    console.log(cursor_pos);
+    if ( ( operation != prev_operation && (operation==1 || operation==3)) || operation==2 || operation==4 ){
+      diffs.push(diff);
+      diff = [];
+      cursor_pos = getCaret(editor_div);
+      text = now_text;
+    }
+    prev_operation = operation;
+  }
+
+}

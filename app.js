@@ -59,6 +59,7 @@ models.defineModels(mongoose, function() {
   app.User = User = mongoose.model('User');
   app.Document = Document = mongoose.model('Document');
   app.LoginToken = LoginToken = mongoose.model('LoginToken');
+  app.Collection = Collection = mongoose.model('Collection');
   db = mongoose.connect(app.set('db-uri'));
 });
 
@@ -145,22 +146,21 @@ app.get('/home', loadUser, function(req, res){
 
 app.get('/document/:d_id', loadUser, function(req, res){
 	//show group bills
-	console.log("WTFFFFFF");
 	//res.send('user' + req.params.id);
-	var d_title;
+	var d_title, d_content;
 	var callback = function(){
-		console.log("document title", d_title);
 		//get all the bills
-		res.render('editor.jade',{  });
+		res.render('editor.jade',{ 
+			locals: {title: d_title, content: d_content, d_id: d_id }
+		});
 		//res.sendfile(__dirname+'/views'+'/editor.html');
 	}
 	var d_id = req.url.split('/')[2];
 	
 	var pagetitle = Document.findOne({ _id: d_id }, function(err, doc){
-		console.log("doc._id", doc._id);
 		d_title = doc.title;
+		d_content = doc.content;
 	}).exec(callback);
-	
 });
 
 app.post('/document/:d_id', loadUser, function(req, res){
@@ -250,7 +250,7 @@ app.get('/newdocument', loadUser, function(req, res){
 });
 
 app.post('/newdocument', loadUser, function(req, res){
-	console.log( "req.body.doc.title", req.body["doc"] );
+	console.log( "req.body.doc", req.body["doc"] );
 
 	var doc = new Document(req.body["doc"]);
 	doc["members"] = doc["members"].concat(req.currentUser.email);
@@ -258,7 +258,6 @@ app.post('/newdocument', loadUser, function(req, res){
 	//doc["content"] = req.body.doc["content"];
 
 	//add this document to each user
-	console.log("WTTTTTTTTTTTTFFFF");
 	//save the document
 	doc.save();		//save the group
 	console.log("doc", doc);
@@ -278,8 +277,34 @@ app.post('/newdocument', loadUser, function(req, res){
 	    		console.log("User not found");
 	    });
 	}
-	console.log("WTTTTTTTTTTTTFFFF");
 	res.redirect('/home');
+});
+
+app.post('/commit', loadUser, function(req, res){
+	var d_id = req.body.user.d_id;
+	var commit_statement = req.body.user.commit_statement;
+	function callback(content){
+		//save content and corresponding d_id in a collection
+		var coll = new Collection({ doc_id: d_id, commit_statement:  commit_statement, docs: content });
+		Collection.findOne({ doc_id: d_id }, function(err, collection){
+			if (collection){
+				collection[]
+			} else{
+				console.log("Collection not found. Creating a new one");
+				
+			}
+		})
+	}
+
+	Document.findOne({ _id: d_id }, function(err, doc){
+		if (doc){
+			var content = doc["content"];
+			console.log("content", content);
+			callback(content);
+		} else
+			console.log("Document not found");
+	});
+	res.redirect('/document/'+d_id+'');
 });
 
 app.get('/users', user.list);

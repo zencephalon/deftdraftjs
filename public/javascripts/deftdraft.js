@@ -232,7 +232,7 @@ Mousetrap.bind('ctrl+shift+e', function() {dd.compress(); return false});
 document.getElementById("editor").onkeyup = checkUpdate;
 
 window.onbeforeunload = function (event) {
-  var message = 'Sure you want to leave?';
+ /* var message = 'Sure you want to leave?';
   if (typeof event == 'undefined') {
     event = window.event;
   }
@@ -240,7 +240,7 @@ window.onbeforeunload = function (event) {
     event.returnValue = message;
   }
   return message;
-  checkUpdate("close");
+  checkUpdate("close");*/
 }
 
 var updateTime = 0;
@@ -271,7 +271,7 @@ function updateServer(){
 }
 
 var cursor_pos;
-var text = "";
+var text = dd.textarea.val();
 var lc_time = "";
 var diffs = [];
 var diff = [];
@@ -280,10 +280,18 @@ var prev_operation;
 
 var editor_div = document.getElementById("editor");
 
+$(document).ready(function(){
+  $("#editor").focus();
+})
+
 $("#editor").focus(function(){
   cursor_pos = getCaret(editor_div);
-  console.log(cursor_pos);
 });
+
+$("#editor").click(function(){
+  cursor_pos = getCaret(editor_div);
+});
+
 
 function trackChanges(){
   
@@ -293,14 +301,16 @@ function trackChanges(){
   d_tx = now_text.length - text.length;
   d_cr = now_cursor_pos - cursor_pos;
   //console.log(d_tx, d_cr);
-  if (now_text == text)
+  if (now_text == text){
     change_type = "no change";
+    console.log(change_type);
+  }
   else{
     var currentTime = Math.floor( new Date().getTime()/1000 );
     d_t = currentTime - lc_time;
     console.log(d_tx, d_cr);
     opChange();
-    if ( d_tx > 0 && d_cr > 0  && d_tx == d_cr ) {              
+    if ( d_tx > 0 && d_cr > 0 && d_tx == d_cr ) {              
         //insert operation at continous location
       change_type = "ins";
       diff = ["ins", cursor_pos, now_text.substr(cursor_pos, d_cr), d_t];
@@ -324,12 +334,12 @@ function trackChanges(){
   }
 
   function opChange(){
-    console.log(cursor_pos);
+    //  console.log(cursor_pos);
     if ( ( operation != prev_operation && (operation==1 || operation==3)) || operation==2 || operation==4 ){
       diffs.push(diff);
       diff = [];
       cursor_pos = getCaret(editor_div);
-      text = now_text;
+    text = now_text;
     }
     prev_operation = operation;
   }

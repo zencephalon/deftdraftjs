@@ -5,8 +5,16 @@ head
 body
   #container
     h2 DeftDraft Editor
-    textarea#editor.textarea.mousetrap.deft
-      | Some sample inputs for our use. Huh, could this actually? Really though? Seems strange. Strange.
+     div #{locals.title}
+     content = locals.content
+     textarea#editor.textarea.mousetrap.deft #{content}
+    
+    form.users#commit(method='post', action='/commit')
+     input(name='user[commitstatement]', value='Write your commit comments here', type='')
+     input(name='user[d_id]', value=locals.d_id )
+     input(type='submit', value='Commit')
+       //- | #{content}
+      //- | Some sample inputs for our use. Huh, could this actually? Really though? Seems strange. Strange.
 
 script(type='text/javascript', src='/public/javascripts/mousetrap.min.js')
 
