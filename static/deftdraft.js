@@ -8,13 +8,38 @@ function DeftDraft(textarea) {
 DeftDraft.prototype.nextWord = function() {
   var content = this.textarea.val();
   var sel = this.textarea.getSelection();
-  console.log(sel.start + ", " + sel.end);
+  //console.log(sel.start + ", " + sel.end);
 
-  // wordBoundaryBefore(pos, content) -> position
+  var before = this.wordBoundaryBefore(sel.start, content); // -> position
+  var after = this.wordBoundaryAfter(sel.end, content);
+  console.log(before + ", " + after);
   // wordBoundaryAfter(pos, content) -> position
 }
 
+DeftDraft.prototype.reverse = function(str) {
+  return str.split("").reverse().join("");
+}
+
 DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
+  content = this.reverse(content.substr(0, pos));
+  reg = /\W/;
+  res = reg.exec(content);
+  //console.log(res);
+  return res.index;
+}
+
+DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
+  content = content.substr(pos);
+  reg = /\W/;
+  res = reg.exec(content);
+  return res.index;
+}
+
+DeftDraft.prototype.atWordStart = function(match_pos, cursor_pos) {
+
+}
+
+DeftDraft.prototype.atWordEnd = function(match_pos, cursor_pos) {
   
 }
 
