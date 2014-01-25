@@ -7,17 +7,7 @@ function DeftDraft(textarea) {
 // If we are selecting a word, select the next word.
 
 DeftDraft.prototype.word = function(func) {
-  var content = this.textarea.val();
-  var sel = this.textarea.getSelection();
-
-  var before = this.wordBoundaryBefore(sel.start, content); // -> position
-  var after = this.wordBoundaryAfter(sel.end, content);
-
-  if (this.alreadySelected(before, after)) {
-    func.call(this, sel, content);
-  } else {
-    this.textarea.setSelection(sel.start - before, sel.end + after);
-  }  
+  this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
 }
 
 DeftDraft.prototype.nextWord = function() {
@@ -88,20 +78,19 @@ DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
   var content = this.textarea.val();
   var sel = this.textarea.getSelection();
 
-  var before = beforeFunc(sel.start, content); // -> position
-  var after = afterFunc(sel.end, content);
+  var before = beforeFunc.call(this, sel.start, content); // -> position
+  var after = afterFunc.call(this, sel.end, content);
 
   console.log(before + ", " + after);
   if (this.alreadySelected(before, after)) {
-    func(sel, content);
+    func.call(this, sel, content);
   } else {
     this.textarea.setSelection(sel.start - before, sel.end + after);
   }   
 }
 
 DeftDraft.prototype.sentence = function(func) {
-  that = this;
-  //this.textobject(function(pos, content) {that.sentenceBoundaryBefore,)
+  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
 }
 
 DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
