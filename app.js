@@ -285,10 +285,11 @@ app.post('/commit', loadUser, function(req, res){
 	console.log(req.body.user);
 	var commit_statement = req.body.user.commitstatement;
 	var content;
+	var uniq = 'uniq' + (new Date()).getTime();
 
 	function createNewCollection(){
-		var coll = new Doc_Collection({ doc_id: d_id, commit_statement:  commit_statement, docs: content });
-		coll.save();	
+		var coll = new Doc_Collection({ doc_id: d_id, commit_statement:  commit_statement, docs: content, uniq_id: uniq });
+		coll.save();
 	}
 
 	function callback(){
@@ -301,7 +302,7 @@ app.post('/commit', loadUser, function(req, res){
 				console.log("Collection found... adding commit to collection");
 				/*Doc_Collection.update({ _id: coll_id }, { $set: {'docs': prev_docs, 'commit_statement': prev_commits } }, 
 					function(err, result){	console.log(result); });*/
-				Doc_Collection.update({ _id: coll_id }, { $push: {'docs': content, 'commit_statement': commit_statement } }, 
+				Doc_Collection.update({ _id: coll_id }, { $push: {'docs': content, 'commit_statement': commit_statement, 'uniq_id': uniq } }, 
 					function(err, result){	console.log(result);	});
 			} else{
 				console.log("Collection not found. Creating a new one");
@@ -315,28 +316,45 @@ app.post('/commit', loadUser, function(req, res){
 			content = doc["content"];
 			console.log("content", content);
 			callback();
+			res.redirect('/document/'+d_id+'');
 		} else
 			console.log("Document not found");
 	});
-	res.redirect('/document/'+d_id+'');
 });
 
-app.get('/:d_id/commit_history', loadUser, function(req, res){
-
+app.get('/:d_id/commithistory', loadUser, function(req, res){
+	var d_id = req.url.split('/')[1]; 
+	var docs, commit_statement, uniq;
 	Doc_Collection.findOne({ doc_id: d_id }, function(err, collection){
 		if (collection){
 				console.log("Collection found... Showing commit history");
 				coll_id = collection._id;
-				//prev_docs = collection.docs.push(content); //[content, collection.docs ];
-				//prev_commits = collection.commit_statement.push(commit_statement); // [commit_statement, collection.commit_statement ];
-				/*Doc_Collection.update({ _id: coll_id }, { $set: {'docs': prev_docs, 'commit_statement': prev_commits } }, 
-					function(err, result){	console.log(result); });*/
-				Doc_Collection.update({ _id: coll_id }, { $push: {'docs': content, 'commit_statement': commit_statement } }, 
-					function(err, result){	console.log(result);	});
-			} else{
+				docs = collection.docs;
+				commit_statement = collection.commit_statement;
+				uniq = collection.uniq_id;
+				callrender();
+			} else
 				console.log("Collection not found");
-			}
 	});
+	function callrender(){
+		res.render('commithistory.jade',{
+			locals: { title: 'Commit history', docs: docs, commit_statement: commit_statement, uniq: uniq, d_id: d_id}
+		});
+	}
+});
+
+app.get('/:d_id/:uniq_id', loadUser, function(req, res){
+	var d_id = req.url.split('/')[1]; 
+	var uniq_id = req.url.split('/')[2];
+	Doc_Collection.findOne({ doc_id: d_id }, function(err, collection){
+		if (collection){
+			
+
+			
+		} else
+			console.log("Collection not found");
+	});
+
 
 });
 

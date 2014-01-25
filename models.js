@@ -40,6 +40,7 @@ function defineModels(mongoose, fn) {
     ,'commit_statement': [String]
     ,'commit_id': [ObjectId]
     ,'doc_id': String
+    ,'uniq_id': [String]
   })
 
 
