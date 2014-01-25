@@ -15,9 +15,7 @@ DeftDraft.prototype.nextWord = function() {
   //console.log(before + ", " + after);
   // wordBoundaryAfter(pos, content) -> position
   if (this.atWordStart(before) && this.atWordEnd(after)) {
-    console.log("Hello!");
-    word_after = this.wordAfter(sel.end, content);
-    this.textarea.setSelection(sel.end + word_after[0], sel.end + word_after[0] + word_after[1]);
+    this.selectWordAfter(sel, content);
     // go to the next word, wherever that is
   } else {
     console.log((sel.start - before) + ", " + (sel.end + after));
@@ -25,15 +23,17 @@ DeftDraft.prototype.nextWord = function() {
   }
 }
 
-DeftDraft.prototype.wordAfter = function(pos, content) {
-  content = content.substr(pos);
+DeftDraft.prototype.selectWordAfter = function(sel, content) {
+  content_after = content.substr(sel.end);
   reg = /\w+/;
-  res = reg.exec(content);
-  console.log(res);
+  res = reg.exec(content_after);
+  
   if (res !== null) {
-    return [res.index, res[0].length];
+    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length);
   } else {
-    return null;
+    sel.start = 0;
+    sel.end = 0;
+    this.selectWordAfter(sel, content);
   }
 }
 
