@@ -40,11 +40,19 @@ DeftDraft.prototype.prevWord = function() {
 }
 
 DeftDraft.prototype.nextSentence = function() {
-  that = this; this.sentence(function(sel, content) {that.selectSentenceAfter(sel, content)});
+  this.sentence(this.selectSentenceAfter);
 }
 
 DeftDraft.prototype.prevSentence = function() {
-  that = this; this.sentence(function(sel, content) {that.selectSentenceBefore(sel, content)});
+  this.sentence(this.selectSentenceBefore);
+}
+
+DeftDraft.prototype.nextParagraph = function() {
+  this.paragraph(this.selectParagraphAfter);
+}
+
+DeftDraft.prototype.prevParagraph = function() {
+  this.paragraph(this.selectParagraphBefore);
 }
 
 // =================== after / before =================
@@ -80,7 +88,6 @@ DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
   content_after = content.substr(sel.end);
   res = /.*?[.!?](\W|$)/.exec(content_after);
 
-  console.log(res);
   if (res !== null) {
     this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
   } else {
@@ -103,8 +110,19 @@ DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
   }
 }
 
-// ==================== boundaries ===================
+DeftDraft.prototype.selectParagraphAfter = function(sel, content) {
+  sel.end = sel.end + 1;
+  content_after = content.substr(sel.end);
+  res = /.*?(\n\n|$)/.exec(content_after);
+
+  console.log(res);
+
+  if (res !== null) {
+    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
+  }
 }
+
+// ==================== boundaries ===================
 
 DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
   content = this.reverse(content.substr(0, pos));
@@ -151,22 +169,36 @@ DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
   }
 }
 
+DeftDraft.prototype.paragraphBoundaryBefore = function(pos, content) {
+  content = this.reverse(content.substr(0, pos));
+  res = /\n\n/.exec(content);
+
+  if (res !== null) {
+    return res.index;
+  } else {
+    return content.length;
+  }  
+}
+
+DeftDraft.prototype.paragraphBoundaryAfter = function(pos, content) {
+  content = content.substr(pos);
+  res = /\n\n/.exec(content);
+
+  if (res !== null) {
+    return res.index;
+  } else {
+    return content.length;
+  }
+}
+
 // ===================== helpers ==================
 
 DeftDraft.prototype.reverse = function(str) {
   return str.split("").reverse().join("");
+}
 
 DeftDraft.prototype.alreadySelected = function(start, end) {
   return (start === 0 && end === 0);
-}
-
-
-DeftDraft.prototype.nextParagraph = function() {
-
-}
-
-DeftDraft.prototype.prevParagraph = function() {
-
 }
 
 DeftDraft.prototype.nextHeading = function() {
