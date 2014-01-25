@@ -141,14 +141,15 @@ DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
 }
 
 DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
-  sel.start = sel.start - 1;
+  //sel.start = sel.start - 1;
   content_before = this.reverse(content.substr(0, sel.start));
-  res = /(^|\W[.!?]).*?(\W[.!?]|$)/.exec(content_before);
+  console.log(sel);
+  res = /(^|\W)[.?!].*?(\W[.!?]|$)/.exec(content_before);
 
   console.log(res);
 
   if (res !== null) {
-    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index + res[1].length);
+    this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
   } else {
     sel.start = content.length;
     sel.end = content.length;
