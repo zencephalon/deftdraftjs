@@ -1,5 +1,5 @@
 .login-container {
-	background-color: #003DF2;
+	background-color: #E8F2F5;
 	border-radius:10px;
 	margin-top: 20px;
 	width: 300px;
@@ -23,7 +23,6 @@ h2 {
 	padding-bottom: 0px;
 	margin-top: 0px;
 	margin-bottom: 10px;
-	color:black;
 	text-align: center;
 }
 
@@ -39,9 +38,14 @@ h2 {
 	padding-left: 15px;
 }
 
+.btn {
+	background-color: #36AECC;
+	color: #fff;
+}
+
 #before-label {
 	padding-right: 5px;
-	color:black;
+	color: #666;
 	margin: 0 auto;
 	text-align: center;
 }
