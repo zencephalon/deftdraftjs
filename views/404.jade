@@ -1,7 +1,20 @@
-extends headerlayout
+doctype html
+html
+	head
+		link(rel='stylesheet', href="/stylesheets/bootstrap.css");
+		script(src="http://code.jquery.com/jquery-1.10.1.min.js");
+		script(src="/js/bootstrap.js");
+		link(rel='stylesheet', href="/stylesheets/style.css");
+		link(rel='stylesheet', href="/stylesheets/headerlayout.css");
 
-block content
-	.page
-	link("../css/404.css")
-	block content
-		h1 404: Page not Found
+	nav
+		div.navbar.navbar-inverse.navbar-fixed-top
+			div.navbar-inner
+				div.container.nav-container
+					a(href='/')
+						button.btn.navbar-toggle.nav-btn(type='button', value='Home', aciton='/') Home
+
+	body.header-content
+		link("../css/404.css")
+		block content
+			h1 404: Page not Found
