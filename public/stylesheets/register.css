@@ -1,16 +1,16 @@
-.login-container {
+.register-container {
 	background-color: #003DF2;
 	border-radius:10px;
 	margin-top: 20px;
 	width: 300px;
 }
 
-.login-box {
+.register-box {
 	padding-top: 25px;
 	padding-bottom: 10px;
 }
 
-#login {
+#register {
 	margin-left: 40px;
 }
 
@@ -31,29 +31,8 @@ h2 {
 	color:black;
 }
 
-#login-form {
+#register-form {
 	padding: 20px;
-}
-
-#remember-me {
-	padding-left: 15px;
-}
-
-#before-label {
-	padding-right: 5px;
-	color:black;
-	margin: 0 auto;
-	text-align: center;
-}
-
-#before-checkbox {
-	margin-right: 5px;
-	vertical-align: text-bottom;
-}
-
-#signup {
-	margin-right: 20px;
-	margin-left: 10px;
 }
 
 .clearfix {
