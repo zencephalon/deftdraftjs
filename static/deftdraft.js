@@ -89,11 +89,10 @@ DeftDraft.prototype.sentence = function(func) {
   var sel = this.textarea.getSelection();
 
   var before = this.sentenceBoundaryBefore(sel.start, content); // -> position
-  var after = this.sentenceBoundaryAfter(sel.end - 1, content);
+  var after = this.sentenceBoundaryAfter(sel.end, content);
 
   console.log(before + ", " + after);
   if (this.alreadySelected(before, after)) {
-    sel.end = sel.end + 1;
     func(sel, content);
   } else {
     this.textarea.setSelection(sel.start - before, sel.end + after);
@@ -112,6 +111,7 @@ DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
 }
 
 DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
+  pos = pos - 1;
   content = content.substr(pos);
   res = /[.!?](\W|$)/.exec(content);
 
@@ -131,6 +131,7 @@ DeftDraft.prototype.prevSentence = function() {
 }
 
 DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
+  sel.end = sel.end + 1;
   content_after = content.substr(sel.end);
   res = /.*?[.!?](\W|$)/.exec(content_after);
 
