@@ -91,73 +91,49 @@ DeftDraft.prototype.selectBackward = function(sel, content, regex) {
 
 // ==================== boundaries ===================
 
-DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
-  content = this.reverse(content.substr(0, pos));
-  res = /\W/.exec(content);
+DeftDraft.prototype.returnResult = function(res, content) {
+  return res !== null ? res.index : content.length;
+}
 
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
+DeftDraft.prototype.boundaryAfter = function(pos, content, regex) {
+  content = content.substr(pos);
+  return this.returnResult(regex.exec(content), content);
 }
 
 DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
-  content = content.substr(pos);
-  res = /\W/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
-}
-
-DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
-  content = this.reverse(content.substr(0, pos));
-  res = /((^|\W)[.!?]|\n)/.exec(content);
-
-  console.log(res);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }  
+  return this.boundaryAfter(pos, content, 
+    /\W/ );
 }
 
 DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
-  pos = pos - 1;
-  content = content.substr(pos);
-  res = /[.!?](\W|$)/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
-}
-
-DeftDraft.prototype.paragraphBoundaryBefore = function(pos, content) {
-  content = this.reverse(content.substr(0, pos));
-  res = /\n\n/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }  
+  pos--;
+  return this.boundaryAfter(pos, content,
+    /[.!?](\W|$)/ );
 }
 
 DeftDraft.prototype.paragraphBoundaryAfter = function(pos, content) {
-  content = content.substr(pos);
-  res = /\n\n/.exec(content);
+  return this.boundaryAfter(pos, content,
+    /\n\n/ );
+}
 
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
+DeftDraft.prototype.boundaryBefore = function(pos, content, regex) {
+  content = this.reverse(content.substr(0, pos));
+  return this.returnResult(regex.exec(content), content);
+}
+
+DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
+  return this.boundaryBefore(pos, content,
+    /\W/ );
+}
+
+DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
+  return this.boundaryBefore(pos, content,
+    /((^|\W)[.!?]|\n)/ );
+}
+
+DeftDraft.prototype.paragraphBoundaryBefore = function(pos, content) {
+  return this.boundaryBefore(pos, content,
+    /\n\n/ );
 }
 
 // ===================== helpers ==================
@@ -170,22 +146,6 @@ DeftDraft.prototype.alreadySelected = function(start, end) {
   return (start === 0 && end === 0);
 }
 
-DeftDraft.prototype.nextHeading = function() {
-
-}
-
-DeftDraft.prototype.prevHeading = function() {
-
-}
-
-DeftDraft.prototype.expand = function() {
-
-}
-
-DeftDraft.prototype.compress = function() {
-
-}
-
 var dd = new DeftDraft($('#editor'));
 Mousetrap.bind('ctrl+w', function() {dd.nextWord(); return false});
 Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord(); return false});
@@ -193,7 +153,3 @@ Mousetrap.bind('ctrl+s', function() {dd.nextSentence(); return false});
 Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence(); return false});
 Mousetrap.bind('ctrl+q', function() {dd.nextParagraph(); return false});
 Mousetrap.bind('ctrl+shift+q', function() {dd.prevParagraph(); return false});
-Mousetrap.bind('ctrl+d', function() {dd.nextHeading(); return false});
-Mousetrap.bind('ctrl+shift+d', function() {dd.prevHeading(); return false});
-Mousetrap.bind('ctrl+e', function() {dd.expand(); return false});
-Mousetrap.bind('ctrl+shift+e', function() {dd.compress(); return false});
