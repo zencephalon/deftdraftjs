@@ -1,233 +1,93 @@
 function DeftDraft(textarea) {
   this.textarea = textarea;
 }
-
-DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
-  var content = this.textarea.val();
-  var sel = this.textarea.getSelection();
-
-  var before = beforeFunc.call(this, sel.start, content); // -> position
-  var after = afterFunc.call(this, sel.end, content);
-
-  console.log(before + ", " + after);
-  if (this.alreadySelected(before, after)) {
-    func.call(this, sel, content);
-  } else {
-    this.textarea.setSelection(sel.start - before, sel.end + after);
-  }   
+// Main function, delegates to helpers.
+DeftDraft.prototype.command = function(dir, obj_t) {
+  this.textFunc(obj_t).call(this, function(sel, content) { 
+    this.selectFunc(dir, sel, content, DeftDraft.regexDict[dir][obj_t]) });
 }
+// If the selection lies within the text object's boundaries, expand to select it
+// If a text object is already selected, select the next or previous one.
+DeftDraft.prototype.textFunc = function(t_obj) {
+  return function(func) {
+    var content = this.textarea.val();
+    var sel = this.textarea.getSelection();
 
-DeftDraft.prototype.word = function(func) {
-  this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
-}
+    var before = this.boundaryFunc.call(this, 'b', t_obj)(sel.start, content);
+    var after = this.boundaryFunc.call(this, 'a', t_obj)(sel.end, content);
 
-DeftDraft.prototype.sentence = function(func) {
-  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
-}
-
-DeftDraft.prototype.paragraph = function(func) {
-  this.textobject(this.paragraphBoundaryBefore, this.paragraphBoundaryAfter, func);
-}
-
-// ================== next / prev ===================
-
-DeftDraft.prototype.nextWord = function() {
-  this.word(this.selectWordAfter);
-}
-
-DeftDraft.prototype.prevWord = function() {
-  this.word(this.selectWordBefore);
-}
-
-DeftDraft.prototype.nextSentence = function() {
-  this.sentence(this.selectSentenceAfter);
-}
-
-DeftDraft.prototype.prevSentence = function() {
-  this.sentence(this.selectSentenceBefore);
-}
-
-DeftDraft.prototype.nextParagraph = function() {
-  this.paragraph(this.selectParagraphAfter);
-}
-
-DeftDraft.prototype.prevParagraph = function() {
-  this.paragraph(this.selectParagraphBefore);
-}
-
-// =================== after / before =================
-
-DeftDraft.prototype.selectWordAfter = function(sel, content) {
-  content_after = content.substr(sel.end);
-  res = /\w+/.exec(content_after);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length);
-  } else {
-    sel.start = 0;
-    sel.end = 0;
-    this.selectWordAfter(sel, content);
+    if (before == 0 && after == 0) {
+      func.call(this, sel, content);
+    } else {
+      this.textarea.setSelection(sel.start - before, sel.end + after);
+    }
   }
 }
-
-DeftDraft.prototype.selectWordBefore = function(sel, content) {
-  content_before = this.reverse(content.substr(0, sel.start));
-  res = /\w+/.exec(content_before);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.start - res.index - res[0].length, sel.start - res.index);
-  } else {
-    sel.start = content.length;
-    sel.end = content.length;
-    this.selectWordBefore(sel, content);
+// Determine where the boundary for the text object lies in either direction.
+DeftDraft.prototype.boundaryFunc = function(dir, t_obj) {
+  return function(pos, content) {
+    b = DeftDraft.regexDict[dir][t_obj];
+    pos -= b[0];
+    content = dir == 'a' ? content.substr(pos) : content.substr(0, pos).split('').reverse().join('');
+    return (res = b[1].exec(content)) !== null ? res.index : content.length;
   }
 }
-
-DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
-  sel.end = sel.end + 1;
-  content_after = content.substr(sel.end);
-  res = /.*?[.!?](\W|$)/.exec(content_after);
+// Select the next instance of the regex, wrapping around if needed.
+DeftDraft.prototype.selectForward = function(sel, content, regex) {
+  res = regex.exec(content.substr(sel.end));
 
   if (res !== null) {
     this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
   } else {
-    sel.start = 0;
-    sel.end = 0;
-    this.selectSentenceAfter(sel, content);
-  }
+    sel.start = sel.end = 0;
+    this.selectForward(sel, content, regex);
+  }  
 }
-
-DeftDraft.prototype.selectSentenceBefore = function(sel, content) {
-  content_before = this.reverse(content.substr(0, sel.start));
-  res = /(^|\W)[.?!].*?(\W[.!?]|$)/.exec(content_before);
+// As above but backward.
+DeftDraft.prototype.selectBackward = function(sel, content, regex) {
+  res = regex.exec(content.substr(0, sel.start).split('').reverse().join(''));
 
   if (res !== null) {
     this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
   } else {
-    sel.start = content.length;
-    sel.end = content.length;
-    this.selectSentenceBefore(sel, content);
+    sel.start = sel.end = content.length;
+    this.selectBackward(sel, content, regex);
   }
 }
-
-DeftDraft.prototype.selectParagraphAfter = function(sel, content) {
-  sel.end = sel.end + 1;
-  content_after = content.substr(sel.end);
-  res = /.*?(\n\n|$)/.exec(content_after);
-
-  console.log(res);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
+// Convenience wrapper.
+DeftDraft.prototype.selectFunc = function(dir, sel, content, regex) {
+  return dir == 'n' ? this.selectForward(sel, content, regex) : this.selectBackward(sel, content, regex);
+}
+// Stores the regexes used.
+DeftDraft.regexDict = {
+  'a' : { // after, for boundaries
+    'w' : [0, /\W/], // word, no offset, non-word char
+    's' : [1, /[.!?](\W|$)/], // sentence, offset for punctuation, punctuation followed by non-word or end
+    'q' : [0, /\n\n/] // qaragraph, no offset, two new lines
+  },
+  'b' : { // before, for boundaries -- note these regexes operate on the input reversed
+    'w' : [0, /\W/], // word, no offset, non-word char
+    's' : [0, /((^|\W)[.!?]|\n)/], // sentence, no offset, (punctuation followed by non-word or start) or new line
+    'q' : [0, /\n\n/] // qaragraph, no offset, two new lines
+  },
+  'n' : { // next, for selections
+    'w' : /[\w']+(\W|$)/, // word, a number of word chars ended by end or non-word char
+    's' : /.*?[.!?](\W|$)/, // sentence, a number of chars ended by punctuation and non-char char or end
+    'q' : /.+(\n\n|$)/ // qaragraph, a number of chars ended by two new lines or the end
+  },
+  'p' : {
+    'w' : /(^|\W)[\w']+(\W|$)/, // word, a number of word chars ended by end or non-word char
+    's' : /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/, // sentence, can start with new paragraph or start of text, or end of earlier sentence, a number of chars, ending in punctuation followed by non-word char or end
+    'q' : /(\n\n|^).+(\n\n|$)/ // qaragraph, start with new paragraph or start of text end with paragraph or end
   }
 }
-
-// ==================== boundaries ===================
-
-DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
-  content = this.reverse(content.substr(0, pos));
-  res = /\W/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
-}
-
-DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
-  content = content.substr(pos);
-  res = /\W/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
-}
-
-DeftDraft.prototype.sentenceBoundaryBefore = function(pos, content) {
-  content = this.reverse(content.substr(0, pos));
-  res = /(^|\W)[.!?]/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }  
-}
-
-DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
-  pos = pos - 1;
-  content = content.substr(pos);
-  res = /[.!?](\W|$)/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
-}
-
-DeftDraft.prototype.paragraphBoundaryBefore = function(pos, content) {
-  content = this.reverse(content.substr(0, pos));
-  res = /\n\n/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }  
-}
-
-DeftDraft.prototype.paragraphBoundaryAfter = function(pos, content) {
-  content = content.substr(pos);
-  res = /\n\n/.exec(content);
-
-  if (res !== null) {
-    return res.index;
-  } else {
-    return content.length;
-  }
-}
-
-// ===================== helpers ==================
-
-DeftDraft.prototype.reverse = function(str) {
-  return str.split("").reverse().join("");
-}
-
-DeftDraft.prototype.alreadySelected = function(start, end) {
-  return (start === 0 && end === 0);
-}
-
-DeftDraft.prototype.nextHeading = function() {
-
-}
-
-DeftDraft.prototype.prevHeading = function() {
-
-}
-
-DeftDraft.prototype.expand = function() {
-
-}
-
-DeftDraft.prototype.compress = function() {
-
-}
-
+// Create new DeftDraft object.
 var dd = new DeftDraft($('#editor'));
-Mousetrap.bind('ctrl+w', function() {dd.nextWord(); return false});
-Mousetrap.bind('ctrl+shift+w', function() {dd.prevWord(); return false});
-Mousetrap.bind('ctrl+s', function() {dd.nextSentence(); return false});
-Mousetrap.bind('ctrl+shift+s', function() {dd.prevSentence(); return false});
-Mousetrap.bind('ctrl+a', function() {dd.nextParagraph(); return false});
-Mousetrap.bind('ctrl+shift+a', function() {dd.prevParagraph(); return false});
-Mousetrap.bind('ctrl+d', function() {dd.nextHeading(); return false});
-Mousetrap.bind('ctrl+shift+d', function() {dd.prevHeading(); return false});
-Mousetrap.bind('ctrl+e', function() {dd.expand(); return false});
-Mousetrap.bind('ctrl+shift+e', function() {dd.compress(); return false});
+// Set the key bindings.
+['w', 's', 'q'].forEach(function (letter) {
+  Mousetrap.bind('ctrl+' + letter, function() {dd.command('n', letter); return false});
+  Mousetrap.bind('ctrl+shift+' + letter, function() {dd.command('p', letter); return false});
+});
 
 document.getElementById("editor").onkeyup = checkUpdate;
 
