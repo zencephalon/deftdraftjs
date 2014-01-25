@@ -9,11 +9,11 @@ body
      div #{locals.title}
      content = locals.content
      textarea#editor.textarea.mousetrap.deft #{content}
-    
-    form.users#commit(method='post', action='/commit')
-     input(name='user[commitstatement]', value='Write your commit comments here', type='')
-     input(name='user[d_id]', value=locals.d_id )
-     input(type='submit', value='Commit')
+     div
+      input#commit_message
+        
+      span
+        button#postContent Commit
     div
       a(href='/'+locals.d_id+'/commithistory') Commit History
        //- | #{content}

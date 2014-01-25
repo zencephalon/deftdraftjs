@@ -1,0 +1,9 @@
+extends layout
+.page
+
+block content
+	div #{locals.title}
+	- for (var i = 0; i < locals.docs.length+1; i++)
+			link = "/" + locals.d_id + "/" + locals.uniq[i];
+			div
+				a(href=link)= locals.commit_statement[i]

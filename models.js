@@ -35,12 +35,19 @@ function defineModels(mongoose, fn) {
     next();
   });
 
+  Docs = new Schema({
+    'text': String
+    ,'uniq_id': String
+  });
+
   Doc_Collection = new Schema({
-    'docs': [String]
+    'docs': [Docs]
+    //'docs': [{text: String, uniq_id: String}] 
+    //,'uniq_id': [String]
     ,'commit_statement': [String]
     ,'commit_id': [ObjectId]
     ,'doc_id': String
-  })
+  });
 
 
   /* Model: User */
@@ -122,6 +129,7 @@ function defineModels(mongoose, fn) {
 
   mongoose.model('Document', Document);
   mongoose.model('User', User);
+  mongoose.model('Docs', Docs);
   mongoose.model('Doc_Collection', Doc_Collection);
   mongoose.model('LoginToken', LoginToken);
   fn();
