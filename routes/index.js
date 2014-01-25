@@ -26,3 +26,7 @@ exports.badlogin = function(req, res){
 exports.editor = function(req, res){
 	res.render('editor', { title: 'Editor' });
 }
+
+exports.settings = function(req, res){
+	res.render('settings', {title: 'Settings'});
+}
