@@ -219,11 +219,74 @@ app.post('/register', function(req, res){
 		});
 	}
 
+	console.log(user.email);
+	var name = user.name;
+	var email = user.email;
+
 	user.save(function(err){
 		if (err)	return userSaveFail();
 		req.session.messages = [ req.body.user.name  , ' your account has been created'];
 		console.log( req.body.user.name  ,"Account created");
 		req.session.user_id = user.id;
+		/////console.log
+
+		// send registration email
+
+		var path           = require('path')
+		  , templatesDir   = path.resolve('welcome', '..', 'templates')
+		  , emailTemplates = require('email-templates')
+		  , nodemailer     = require('nodemailer');
+
+		emailTemplates(templatesDir, function(err, template) {
+
+		  if (err) {
+		    console.log(err);
+		  } else {
+
+		    // ## Send a single email
+
+		    // Prepare nodemailer transport object
+		    var transport = nodemailer.createTransport("SMTP", {
+		      service: "Gmail",
+		      auth: {
+		        user: "deftdraft@gmail.com",
+		        pass: "ddpassword"
+		      }
+		    });
+
+		    // An example users object with formatted email function
+		    var locals = {
+		      email: email,
+		      name: {
+		        first: 'Mamma',
+		        last: 'Mia'
+		      }
+		    };
+
+		    // Send a single email
+		    template('welcome', locals, function(err, html, text) {
+		      if (err) {
+		        console.log(err);
+		      } else {
+		        transport.sendMail({
+		          from: 'Deft Draft <deftdraft+noreply@gmail.com>',
+		          to: locals.email,
+		          subject: 'Welcome to Deft Draft!',
+		          html: html,
+		          // generateTextFromHTML: true,
+		          text: text
+		        }, function(err, responseStatus) {
+		          if (err) {
+		            console.log(err);
+		          } else {
+		            console.log(responseStatus.message);
+		          }
+		        });
+		      }
+		    });
+		 }
+		});
+
 		res.redirect('/home');
 	});
 });
@@ -269,6 +332,57 @@ app.post('/newdocument', loadUser, function(req, res){
 });
 
 app.get('/users', user.list);
+
+app.get('/settings', function(req, res){
+	res.render('settings.jade', {
+    	locals: { message: '' }
+  });
+});
+
+app.post('/settings', loadUser, function(req, res){
+	//// check if logged in...
+
+	//console.log("STARTS HERE ========================================================================================================================================================================================================================================")
+	//console.log(req);
+	//console.log("Middle HERE ========================================================================================================================================================================================================================================")
+	//console.log(res);
+	console.log(req);
+	console.log("ENDS HERE ==========================");
+	console.log(req.body);
+	console.log(User);
+	console.log(user);
+	if ((req.body["newPassword"] === req.body["confirmPassword"]) && (req.body["newPassword"] !== '')) {
+		console.log("Valid new password");
+		// change password
+		//User.path('hashed_password').set(function (v) {
+		//	return capitalize(v);
+		//});
+		//console.log(User.password)
+		//console.log(User.encryptPassword(req.body["newPassword"]));
+		//console.log(User.update({ hashed_password: User.encryptPassword(req.body["newPassword"]) }) );
+		User.findOne({ email: req.currentUser.email }, function (err, user) {
+
+			if (user) {				
+				console.log(user);
+				console.log(user.password);
+				//User.update({ id: user._id }, { hashed_password: req.body["newPassword"] }).exec();
+				user.password = req.body["newPassword"];
+				console.log(user);
+				console.log(user.password);
+				user.save();
+			}
+		});
+		//User.save();
+		req.session.messages = ['Password updated successfully'];
+	}
+	else {
+		console.log("Invalid new password");
+		req.session.messages = ['ERROR: Passwords must match'];
+	}
+	res.render('settings.jade', {
+		locals: { message: req.session.messages }
+	});
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port %d, environment: %s', app.get('port'), app.settings.env)
