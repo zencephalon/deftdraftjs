@@ -8,26 +8,26 @@ function DeftDraft(textarea) {
 DeftDraft.prototype.nextWord = function() {
   var content = this.textarea.val();
   var sel = this.textarea.getSelection();
-  //console.log(sel.start + ", " + sel.end);
 
   var before = this.wordBoundaryBefore(sel.start, content); // -> position
   var after = this.wordBoundaryAfter(sel.end, content);
-  //console.log(before + ", " + after);
-  // wordBoundaryAfter(pos, content) -> position
+
   if (this.atWordStart(before) && this.atWordEnd(after)) {
-    this.selectWordAfter(sel, content);
     // go to the next word, wherever that is
+    this.selectWordAfter(sel, content);
   } else {
-    console.log((sel.start - before) + ", " + (sel.end + after));
     this.textarea.setSelection(sel.start - before, sel.end + after);
   }
 }
 
+DeftDraft.prototype.prevWord = function() {
+
+}
+
 DeftDraft.prototype.selectWordAfter = function(sel, content) {
   content_after = content.substr(sel.end);
-  reg = /\w+/;
-  res = reg.exec(content_after);
-  
+  res = /\w+/.exec(content_after);
+
   if (res !== null) {
     this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length);
   } else {
@@ -43,9 +43,8 @@ DeftDraft.prototype.reverse = function(str) {
 
 DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
   content = this.reverse(content.substr(0, pos));
-  reg = /\W/;
-  res = reg.exec(content);
-  //console.log(res);
+  res = /\W/.exec(content);
+
   if (res !== null) {
     return res.index;
   } else {
@@ -55,8 +54,8 @@ DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
 
 DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
   content = content.substr(pos);
-  reg = /\W/;
-  res = reg.exec(content);
+  res = /\W/.exec(content);
+  
   if (res !== null) {
     return res.index;
   } else {
@@ -70,10 +69,6 @@ DeftDraft.prototype.atWordStart = function(match_pos) {
 
 DeftDraft.prototype.atWordEnd = function(match_pos) {
   return (match_pos === 0);
-}
-
-DeftDraft.prototype.prevWord = function() {
-
 }
 
 DeftDraft.prototype.nextSentence = function() {
