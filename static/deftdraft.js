@@ -32,23 +32,26 @@ DeftDraft.prototype.paragraph = function(func) {
 // ================== next / prev ===================
 
 DeftDraft.prototype.nextWord = function() {
-  this.word(this.selectWordAfter);
+  this.word(function(sel, content) { this.selectForward(sel, content, 
+    /[\w']+(\W|$)/) });
+}
+
+DeftDraft.prototype.nextSentence = function() {
+  this.word(function(sel, content) { this.selectForward(sel, content, 
+    /.*?[.!?](\W|$)/ });
+}
+
+DeftDraft.prototype.nextParagraph = function() {
+  this.word(function(sel, content) { this.selectForward(sel, content, 
+    /.+(\n\n|$)/ });
 }
 
 DeftDraft.prototype.prevWord = function() {
   this.word(this.selectWordBefore);
 }
 
-DeftDraft.prototype.nextSentence = function() {
-  this.sentence(this.selectSentenceAfter);
-}
-
 DeftDraft.prototype.prevSentence = function() {
   this.sentence(this.selectSentenceBefore);
-}
-
-DeftDraft.prototype.nextParagraph = function() {
-  this.paragraph(this.selectParagraphAfter);
 }
 
 DeftDraft.prototype.prevParagraph = function() {
@@ -68,45 +71,6 @@ DeftDraft.prototype.selectForward = function(sel, content, regex) {
     sel.end = 0;
     this.selectForward(sel, content, regex);
   }  
-}
-
-DeftDraft.prototype.selectWordAfter = function(sel, content) {
-  content_after = content.substr(sel.end);
-  res = /[\w']+(\W|$)/.exec(content_after);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
-  } else {
-    sel.start = 0;
-    sel.end = 0;
-    this.selectWordAfter(sel, content);
-  }
-}
-
-DeftDraft.prototype.selectSentenceAfter = function(sel, content) {
-  content_after = content.substr(sel.end);
-  res = /.*?[.!?](\W|$)/.exec(content_after);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
-  } else {
-    sel.start = 0;
-    sel.end = 0;
-    this.selectSentenceAfter(sel, content);
-  }
-}
-
-DeftDraft.prototype.selectParagraphAfter = function(sel, content) {
-  content_after = content.substr(sel.end);
-  res = /.+(\n\n|$)/.exec(content_after);
-
-  if (res !== null) {
-    this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
-  } else {
-    sel.start = 0;
-    sel.end = 0;
-    this.selectParagraphAfter(sel, content);
-  }
 }
 
 DeftDraft.prototype.selectWordBefore = function(sel, content) {
