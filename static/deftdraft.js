@@ -2,33 +2,6 @@ function DeftDraft(textarea) {
   this.textarea = textarea;
 }
 
-DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
-  var content = this.textarea.val();
-  var sel = this.textarea.getSelection();
-
-  var before = beforeFunc.call(this, sel.start, content); // -> position
-  var after = afterFunc.call(this, sel.end, content);
-
-  console.log(before + ", " + after);
-  if (this.alreadySelected(before, after)) {
-    func.call(this, sel, content);
-  } else {
-    this.textarea.setSelection(sel.start - before, sel.end + after);
-  }   
-}
-
-DeftDraft.prototype.word = function(func) {
-  this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
-}
-
-DeftDraft.prototype.sentence = function(func) {
-  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
-}
-
-DeftDraft.prototype.paragraph = function(func) {
-  this.textobject(this.paragraphBoundaryBefore, this.paragraphBoundaryAfter, func);
-}
-
 // ================== next / prev ===================
 
 DeftDraft.prototype.nextWord = function() {
@@ -61,35 +34,59 @@ DeftDraft.prototype.prevParagraph = function() {
     /(\n\n|^).+(\n\n|$)/ )});
 }
 
-// =================== after / before =================
+// ================= text element helpers ================
+
+DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
+  var content = this.textarea.val();
+  var sel = this.textarea.getSelection();
+
+  var before = beforeFunc.call(this, sel.start, content);
+  var after = afterFunc.call(this, sel.end, content);
+
+  if (this.alreadySelected(before, after)) {
+    func.call(this, sel, content);
+  } else {
+    this.textarea.setSelection(sel.start - before, sel.end + after);
+  }   
+}
+
+DeftDraft.prototype.word = function(func) {
+  this.textobject(this.wordBoundaryBefore, this.wordBoundaryAfter, func);
+}
+
+DeftDraft.prototype.sentence = function(func) {
+  this.textobject(this.sentenceBoundaryBefore, this.sentenceBoundaryAfter, func);
+}
+
+DeftDraft.prototype.paragraph = function(func) {
+  this.textobject(this.paragraphBoundaryBefore, this.paragraphBoundaryAfter, func);
+}
+
+// =================== select helpers =================
 
 DeftDraft.prototype.selectForward = function(sel, content, regex) {
-  content_after = content.substr(sel.end);
-  res = regex.exec(content_after);
+  res = regex.exec(content.substr(sel.end));
 
   if (res !== null) {
     this.textarea.setSelection(sel.end + res.index, sel.end + res.index + res[0].length - res[1].length);
   } else {
-    sel.start = 0;
-    sel.end = 0;
+    sel.start = sel.end = 0;
     this.selectForward(sel, content, regex);
   }  
 }
 
 DeftDraft.prototype.selectBackward = function(sel, content, regex) {
-  content_before = this.reverse(content.substr(0, sel.start));
-  res = regex.exec(content_before);
+  res = regex.exec(this.reverse(content.substr(0, sel.start)));
 
   if (res !== null) {
     this.textarea.setSelection(sel.start - res.index - res[0].length + res[2].length, sel.start - res.index - res[1].length);
   } else {
-    sel.start = content.length;
-    sel.end = content.length;
+    sel.start = sel.end = content.length;
     this.selectBackward(sel, content, regex);
   }
 }
 
-// ==================== boundaries ===================
+// ==================== boundary helpers ===================
 
 DeftDraft.prototype.returnResult = function(res, content) {
   return res !== null ? res.index : content.length;
@@ -99,6 +96,13 @@ DeftDraft.prototype.boundaryAfter = function(pos, content, regex) {
   content = content.substr(pos);
   return this.returnResult(regex.exec(content), content);
 }
+
+DeftDraft.prototype.boundaryBefore = function(pos, content, regex) {
+  content = this.reverse(content.substr(0, pos));
+  return this.returnResult(regex.exec(content), content);
+}
+
+// ======================== boundaries =====================
 
 DeftDraft.prototype.wordBoundaryAfter = function(pos, content) {
   return this.boundaryAfter(pos, content, 
@@ -114,11 +118,6 @@ DeftDraft.prototype.sentenceBoundaryAfter = function(pos, content) {
 DeftDraft.prototype.paragraphBoundaryAfter = function(pos, content) {
   return this.boundaryAfter(pos, content,
     /\n\n/ );
-}
-
-DeftDraft.prototype.boundaryBefore = function(pos, content, regex) {
-  content = this.reverse(content.substr(0, pos));
-  return this.returnResult(regex.exec(content), content);
 }
 
 DeftDraft.prototype.wordBoundaryBefore = function(pos, content) {
@@ -145,6 +144,8 @@ DeftDraft.prototype.reverse = function(str) {
 DeftDraft.prototype.alreadySelected = function(start, end) {
   return (start === 0 && end === 0);
 }
+
+// =================== bindings ===================
 
 var dd = new DeftDraft($('#editor'));
 Mousetrap.bind('ctrl+w', function() {dd.nextWord(); return false});
