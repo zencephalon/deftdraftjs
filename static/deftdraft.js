@@ -5,32 +5,32 @@ function DeftDraft(textarea) {
 // ================== next / prev ===================
 
 DeftDraft.prototype.nextWord = function() {
-  this.word(function(sel, content) { this.selectForward(sel, content, 
+  this.textFunc('w').call(this, function(sel, content) { this.selectForward(sel, content, 
     /[\w']+(\W|$)/ )});
 }
 
 DeftDraft.prototype.nextSentence = function() {
-  this.sentence(function(sel, content) { this.selectForward(sel, content, 
+  this.textFunc('s').call(this, function(sel, content) { this.selectForward(sel, content, 
     /.*?[.!?](\W|$)/ )});
 }
 
 DeftDraft.prototype.nextParagraph = function() {
-  this.paragraph(function(sel, content) { this.selectForward(sel, content, 
+  this.textFunc('q').call(this, function(sel, content) { this.selectForward(sel, content, 
     /.+(\n\n|$)/ )});
 }
 
 DeftDraft.prototype.prevWord = function() {
-  this.word(function(sel, content) { this.selectBackward(sel, content,
+  this.textFunc('w').call(this, function(sel, content) { this.selectBackward(sel, content, 
     /(^|\W)[\w']+(\W|$)/ )});
 }
 
 DeftDraft.prototype.prevSentence = function() {
-  this.sentence(function(sel, content) { this.selectBackward(sel, content,
+  this.textFunc('s').call(this, function(sel, content) { this.selectBackward(sel, content, 
     /(^|\W)[.?!].*?(\W[.!?]|$|\n\n)/ )});
 }
 
 DeftDraft.prototype.prevParagraph = function() {
-  this.paragraph(function(sel, content) { this.selectBackward(sel, content,
+  this.textFunc('q').call(this, function(sel, content) { this.selectBackward(sel, content, 
     /(\n\n|^).+(\n\n|$)/ )});
 }
 
@@ -50,16 +50,10 @@ DeftDraft.prototype.textobject = function(beforeFunc, afterFunc, func) {
   }   
 }
 
-DeftDraft.prototype.word = function(func) {
-  this.textobject(this.boundaryFunc('b', 'w'), this.boundaryFunc('a', 'w'), func);
-}
-
-DeftDraft.prototype.sentence = function(func) {
-  this.textobject(this.boundaryFunc('b', 's'), this.boundaryFunc('a', 's'), func);
-}
-
-DeftDraft.prototype.paragraph = function(func) {
-  this.textobject(this.boundaryFunc('b', 'q'), this.boundaryFunc('a', 'q'), func);
+DeftDraft.prototype.textFunc = function(t_obj) {
+  return function(func) {
+    this.textobject(this.boundaryFunc('b', t_obj), this.boundaryFunc('a', t_obj), func);
+  }
 }
 
 // =================== select helpers =================
