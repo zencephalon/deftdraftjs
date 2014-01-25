@@ -163,6 +163,17 @@ app.get('/document/:d_id', loadUser, function(req, res){
 	
 });
 
+app.post('/document/:d_id', loadUser, function(req, res){
+	console.log(req.body);
+	var d_id = req.url.split('/')[2];				//document id
+	console.log("d_id", d_id);
+	Document.update(
+		{ _id: d_id }, { $set: {'content': req.body.content} }, function(err, result){
+			console.log(result);
+		}
+	)
+});
+
 app.get('/logout', function(req, res){
 	req.session.destroy();
 	res.clearCookie('logintoken');

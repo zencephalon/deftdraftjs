@@ -209,11 +209,11 @@ window.onbeforeunload = function (event) {
   checkUpdate("close");
 }
 
-var updateTime = Infinity;
+var updateTime = 0;
 function checkUpdate(e){
   if (e != "close"){            //wait for 5 seconds before last update
     var currentTime = Math.floor( new Date().getTime()/1000 );
-    if (updateTime - currentTime > 5){
+    if (updateTime - currentTime < -5){
       updateTime = currentTime;
       //update server
       updateServer();
@@ -225,5 +225,9 @@ function checkUpdate(e){
 }
 
 function updateServer(){
-  
+  console.log("updating...");
+  content = $("#editor").val();
+  $.post( document.URL, {
+    "content":  content
+  });
 }
