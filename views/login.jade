@@ -1,26 +1,27 @@
 link(rel='stylesheet', href="/stylesheets/bootstrap.css");
 script(src="http://code.jquery.com/jquery-1.10.1.min.js");
 script(src="/js/bootstrap.js");
+link(rel='stylesheet', href="/stylesheets/style.css");
+link(rel='stylesheet', href="/stylesheets/login.css");
 
 body
-  #container
-    #content
+  #container.login-container
+    #content.login-box
       #row
         #login-form
           h2 #{locals.title}
-          form(action="")
-
-  #container
-    a.button(href='/register') Create an account
-
-  #login-box
-    form.users#login(method='post', action='/login') #{locals.users.email}
-      include fields
-      if locals.users
-        #div1
-          label(for='remember_me') Remember me:
-          input#remember_me(type='checkbox', name='remember_me')
-        
-          input(type='submit', value='Log In')
-      if locals.message
-        div#message #{locals.message}
+          form.users#login(method='post', action='/login') #{locals.users.email}
+            fieldset
+              .clearfix
+                input(type='text', placeholder='Username', name='user[email]');
+              .clearfix
+                input(type='password', placeholder='Password', name='user[password]');
+              if locals.users
+                .clearfix
+                  label(id='before-label', for='remember_me') Remember me:
+                  input(id='before-checkbox', type='checkbox', name="remember_me") Remember me
+              button.btn.primary(type='submit', value='Log in') Log in
+              a(href='/register')
+                button.btn.primary(type='button', value='Sign in', action='/register') Sign in
+              if locals.message
+                div#message #{locals.message}

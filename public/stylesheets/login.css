@@ -1,60 +1,45 @@
-
-#login-box {
-	width:333px;
-	height: 352px;
-	padding: 58px 76px 0 76px;
-	color: #ebebeb;
-	font: 12px Arial, Helvetica, sans-serif;
-	background: url(images/login-box-backg.png) no-repeat left top;
+.login-container {
+	background-color: #7777FF;
+	border-radius:10px;
+	margin-top: 20px;
+	margin-left: 25px;
+	width: 295px;
 }
 
-#login-box img {
-	border:none;
+.login-box {
+	padding-top: 25px;
+	padding-bottom: 10px;
 }
 
-#login-box h2 {
-	padding:0;
-	margin:0;
-	color: #ebebeb;
-	font: bold 44px "Calibri", Arial;
+h2 {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-top: 0px;
+	margin-bottom: 10px;
 }
 
-
-#login-box-name {
-	float: left;
-	display:inline;
-	width:80px;
-	text-align: right;
-	padding: 14px 10px 0 0;
-	margin:0 0 7px 0;
+#login-form {
+	padding-left: 65px;
 }
 
-#login-box-field {
-	float: left;
-	display:inline;
-	width:230px;
-	margin:0;
-	margin:0 0 7px 0;
+#before-label {
+	padding-right: 5px;
 }
 
-
-.form-login  {
-	width: 205px;
-	padding: 10px 4px 6px 3px;
-	border: 1px solid #0d2c52;
-	background-color:#1e4f8a;
-	font-size: 16px;
-	color: #ebebeb;
+#before-checkbox {
+	margin-right: 5px;
 }
 
-
-.login-box-options  {
-	clear:both;
-	padding-left:87px;
-	font-size: 11px;
+#signup {
+	margin-right: 20px;
+	margin-left: 10px;
 }
 
-.login-box-options a {
-	color: #ebebeb;
-	font-size: 11px;
+.clearfix {
+	padding-bottom: 10px;
+}
+
+.primary {
+	margin-left: 10px;
+	margin-right: 10px;
 }
